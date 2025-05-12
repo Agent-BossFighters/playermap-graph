@@ -1,0 +1,434 @@
+import React, { useState, useEffect, useRef } from "react";
+import { getSmartSuggestions, searchWithFilters } from "../services/aiSuggestionService";
+
+const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState({
+    subjects: [],
+    predicates: [],
+    objects: []
+  });
+  const [selectedFilters, setSelectedFilters] = useState({
+    subject: "",
+    predicate: "",
+    object: ""
+  });
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchTimeoutRef = useRef(null);
+  const suggestionsRef = useRef(null);
+
+  // Gérer les clics en dehors du conteneur de suggestions
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Obtenir des suggestions
+  useEffect(() => {
+    if (query.length >= 2) {
+      clearTimeout(searchTimeoutRef.current);
+      
+      searchTimeoutRef.current = setTimeout(async () => {
+        try {
+          const smartSuggestions = await getSmartSuggestions(query, endpoint);
+          setSuggestions(smartSuggestions);
+          setShowSuggestions(
+            smartSuggestions.subjects.length > 0 || 
+            smartSuggestions.predicates.length > 0 || 
+            smartSuggestions.objects.length > 0
+          );
+        } catch (error) {
+          console.error("Erreur lors de la récupération des suggestions:", error);
+        }
+      }, 300);
+    } else {
+      setSuggestions({ subjects: [], predicates: [], objects: [] });
+      setShowSuggestions(false);
+    }
+
+    return () => {
+      clearTimeout(searchTimeoutRef.current);
+    };
+  }, [query, endpoint]);
+
+  // Appliquer un filtre
+  const applyFilter = (type, value) => {
+    setSelectedFilters(prev => {
+      if (prev[type] === value) {
+        return { ...prev, [type]: "" };
+      }
+      return { ...prev, [type]: value };
+    });
+  };
+
+  // Effectuer la recherche
+  const handleSearch = async () => {
+    try {
+      const results = await searchWithFilters(query, selectedFilters, endpoint);
+      onSearch(results);
+    } catch (error) {
+      console.error("Erreur lors de la recherche:", error);
+    }
+  };
+
+  const hasActiveFilters = selectedFilters.subject || selectedFilters.predicate || selectedFilters.object;
+
+  // Styles inline modernisés avec meilleur contraste
+  const styles = {
+    container: {
+      width: '100%',
+      maxWidth: '550px',
+      margin: '0 auto',
+      position: 'relative',
+      zIndex: 1000
+    },
+    inputWrapper: {
+      display: 'flex',
+      width: '100%',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      borderRadius: '8px',
+      overflow: 'hidden',
+      backgroundColor: 'rgba(30, 30, 40, 0.6)', // Fond semi-transparent foncé
+      backdropFilter: 'blur(5px)',
+      border: '1px solid rgba(255, 255, 255, 0.2)'
+    },
+    input: {
+      flex: 1,
+      padding: '14px 18px',
+      fontSize: '16px',
+      border: 'none',
+      backgroundColor: 'transparent',
+      color: 'white',
+      outline: 'none',
+      fontWeight: '400'
+    },
+    inputPlaceholder: {
+      color: 'rgba(255, 255, 255, 0.6)'
+    },
+    button: {
+      padding: '0 22px',
+      backgroundColor: '#4A66E8', // Bleu plus moderne
+      color: 'white',
+      border: 'none',
+      cursor: 'pointer',
+      fontWeight: '600',
+      fontSize: '15px',
+      transition: 'background-color 0.2s ease'
+    },
+    buttonHover: {
+      backgroundColor: '#5E79F3'
+    },
+    disabledButton: {
+      backgroundColor: 'rgba(74, 102, 232, 0.6)',
+      cursor: 'not-allowed'
+    },
+    activeFilters: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      marginTop: '12px',
+      padding: '10px 14px',
+      backgroundColor: 'rgba(30, 30, 40, 0.7)',
+      borderRadius: '6px',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(5px)'
+    },
+    filtersLabel: {
+      fontWeight: '600',
+      marginRight: '12px',
+      color: 'rgba(255, 255, 255, 0.9)',
+      fontSize: '14px'
+    },
+    filtersChips: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '8px'
+    },
+    filterChip: {
+      display: 'flex',
+      alignItems: 'center',
+      padding: '6px 12px',
+      borderRadius: '20px',
+      fontSize: '14px',
+      color: 'white',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+    },
+    subjectChip: {
+      backgroundColor: '#5683E8' // Bleu plus vif
+    },
+    predicateChip: {
+      backgroundColor: '#56B3E8' // Bleu clair
+    },
+    objectChip: {
+      backgroundColor: '#56E8B3' // Vert-bleu
+    },
+    chipButton: {
+      background: 'none',
+      border: 'none',
+      color: 'white',
+      marginLeft: '8px',
+      cursor: 'pointer',
+      fontSize: '18px',
+      lineHeight: 1,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '22px',
+      height: '22px',
+      borderRadius: '50%',
+      transition: 'background-color 0.2s ease'
+    },
+    chipButtonHover: {
+      backgroundColor: 'rgba(255, 255, 255, 0.2)'
+    },
+    clearButton: {
+      padding: '6px 12px',
+      backgroundColor: 'rgba(255, 70, 70, 0.8)', // Rouge plus transparent
+      color: 'white',
+      border: 'none',
+      borderRadius: '20px',
+      cursor: 'pointer',
+      fontSize: '14px',
+      fontWeight: '500',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      transition: 'background-color 0.2s ease'
+    },
+    clearButtonHover: {
+      backgroundColor: 'rgba(255, 70, 70, 1)'
+    },
+    suggestionsContainer: {
+      position: 'absolute',
+      top: 'calc(100% + 8px)',
+      left: 0,
+      right: 0,
+      backgroundColor: 'rgba(25, 25, 35, 0.9)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      borderRadius: '8px',
+      maxHeight: '400px',
+      overflowY: 'auto',
+      zIndex: 1001,
+      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
+      color: 'white'
+    },
+    suggestionCategory: {
+      padding: '14px',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+    },
+    categoryHeader: {
+      fontWeight: '600',
+      marginBottom: '10px',
+      color: 'rgba(255, 255, 255, 0.8)',
+      fontSize: '14px',
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px'
+    },
+    suggestionList: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '8px'
+    },
+    suggestionItem: {
+      padding: '6px 12px',
+      borderRadius: '18px',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      fontSize: '14px',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      color: 'rgba(255, 255, 255, 0.9)'
+    },
+    suggestionItemHover: {
+      backgroundColor: 'rgba(255, 255, 255, 0.2)'
+    },
+    selectedSuggestion: {
+      backgroundColor: '#4A66E8',
+      color: 'white'
+    }
+  };
+
+  // États pour gérer le hover
+  const [buttonHover, setButtonHover] = useState(false);
+  const [clearButtonHover, setClearButtonHover] = useState(false);
+  const [hoverChipButton, setHoverChipButton] = useState(null);
+  const [hoverSuggestion, setHoverSuggestion] = useState(null);
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.inputWrapper}>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Recherchez des triples..."
+          style={{
+            ...styles.input,
+          }}
+          onFocus={() => setShowSuggestions(true)}
+        />
+        <button 
+          onClick={handleSearch} 
+          disabled={isSearching}
+          style={{
+            ...styles.button,
+            ...(buttonHover && !isSearching ? styles.buttonHover : {}),
+            ...(isSearching ? styles.disabledButton : {})
+          }}
+          onMouseEnter={() => setButtonHover(true)}
+          onMouseLeave={() => setButtonHover(false)}
+        >
+          {isSearching ? "Recherche..." : "Rechercher"}
+        </button>
+      </div>
+      
+      {hasActiveFilters && (
+        <div style={styles.activeFilters}>
+          <div style={styles.filtersLabel}>Filtres actifs:</div>
+          <div style={styles.filtersChips}>
+            {selectedFilters.subject && (
+              <div style={{...styles.filterChip, ...styles.subjectChip}}>
+                <span>Sujet: {selectedFilters.subject}</span>
+                <button 
+                  onClick={() => applyFilter('subject', selectedFilters.subject)}
+                  style={{
+                    ...styles.chipButton,
+                    ...(hoverChipButton === 'subject' ? styles.chipButtonHover : {})
+                  }}
+                  onMouseEnter={() => setHoverChipButton('subject')}
+                  onMouseLeave={() => setHoverChipButton(null)}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            {selectedFilters.predicate && (
+              <div style={{...styles.filterChip, ...styles.predicateChip}}>
+                <span>Prédicat: {selectedFilters.predicate}</span>
+                <button 
+                  onClick={() => applyFilter('predicate', selectedFilters.predicate)}
+                  style={{
+                    ...styles.chipButton,
+                    ...(hoverChipButton === 'predicate' ? styles.chipButtonHover : {})
+                  }}
+                  onMouseEnter={() => setHoverChipButton('predicate')}
+                  onMouseLeave={() => setHoverChipButton(null)}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            {selectedFilters.object && (
+              <div style={{...styles.filterChip, ...styles.objectChip}}>
+                <span>Objet: {selectedFilters.object}</span>
+                <button 
+                  onClick={() => applyFilter('object', selectedFilters.object)}
+                  style={{
+                    ...styles.chipButton,
+                    ...(hoverChipButton === 'object' ? styles.chipButtonHover : {})
+                  }}
+                  onMouseEnter={() => setHoverChipButton('object')}
+                  onMouseLeave={() => setHoverChipButton(null)}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <button 
+              onClick={() => setSelectedFilters({subject: "", predicate: "", object: ""})} 
+              style={{
+                ...styles.clearButton,
+                ...(clearButtonHover ? styles.clearButtonHover : {})
+              }}
+              onMouseEnter={() => setClearButtonHover(true)}
+              onMouseLeave={() => setClearButtonHover(false)}
+            >
+              Effacer tous les filtres
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {showSuggestions && (
+        <div style={styles.suggestionsContainer} ref={suggestionsRef}>
+          {suggestions.subjects.length > 0 && (
+            <div style={styles.suggestionCategory}>
+              <div style={styles.categoryHeader}>Sujets suggérés</div>
+              <div style={styles.suggestionList}>
+                {suggestions.subjects.map((subject, index) => (
+                  <div 
+                    key={`subject-${index}`} 
+                    style={{
+                      ...styles.suggestionItem,
+                      ...(hoverSuggestion === `subject-${index}` ? styles.suggestionItemHover : {}),
+                      ...(selectedFilters.subject === subject ? styles.selectedSuggestion : {})
+                    }}
+                    onClick={() => applyFilter('subject', subject)}
+                    onMouseEnter={() => setHoverSuggestion(`subject-${index}`)}
+                    onMouseLeave={() => setHoverSuggestion(null)}
+                  >
+                    {subject}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {suggestions.predicates.length > 0 && (
+            <div style={styles.suggestionCategory}>
+              <div style={styles.categoryHeader}>Prédicats suggérés</div>
+              <div style={styles.suggestionList}>
+                {suggestions.predicates.map((predicate, index) => (
+                  <div 
+                    key={`predicate-${index}`} 
+                    style={{
+                      ...styles.suggestionItem,
+                      ...(hoverSuggestion === `predicate-${index}` ? styles.suggestionItemHover : {}),
+                      ...(selectedFilters.predicate === predicate ? styles.selectedSuggestion : {})
+                    }}
+                    onClick={() => applyFilter('predicate', predicate)}
+                    onMouseEnter={() => setHoverSuggestion(`predicate-${index}`)}
+                    onMouseLeave={() => setHoverSuggestion(null)}
+                  >
+                    {predicate}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {suggestions.objects.length > 0 && (
+            <div style={styles.suggestionCategory}>
+              <div style={styles.categoryHeader}>Objets suggérés</div>
+              <div style={styles.suggestionList}>
+                {suggestions.objects.map((object, index) => (
+                  <div 
+                    key={`object-${index}`} 
+                    style={{
+                      ...styles.suggestionItem,
+                      ...(hoverSuggestion === `object-${index}` ? styles.suggestionItemHover : {}),
+                      ...(selectedFilters.object === object ? styles.selectedSuggestion : {})
+                    }}
+                    onClick={() => applyFilter('object', object)}
+                    onMouseEnter={() => setHoverSuggestion(`object-${index}`)}
+                    onMouseLeave={() => setHoverSuggestion(null)}
+                  >
+                    {object}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default SmartSearchInterface;

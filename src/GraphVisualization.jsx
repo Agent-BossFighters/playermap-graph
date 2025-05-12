@@ -8,6 +8,8 @@ import GraphLegend from "./GraphLegend";
 import GraphVR from "./GraphVR";
 import NodeDetailsSidebar from "./NodeDetailsSidebar";
 import LoadingAnimation from "./LoadingAnimation";
+import SmartSearchInterface from "./components/SmartSearchInterface";
+import "./GraphVisualization.css";
 
 const GraphVisualization = ({ endpoint }) => {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
@@ -28,6 +30,7 @@ const GraphVisualization = ({ endpoint }) => {
   const [objectFilter, setObjectFilter] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [shouldSearch, setShouldSearch] = useState(false);
+  const [isHighlightingSearchResults, setIsHighlightingSearchResults] = useState(false);
 
   const enhanceGraphDataWithCreators = useCallback((graphData, triples) => {
     const creatorNodes = [];
@@ -89,6 +92,26 @@ const GraphVisualization = ({ endpoint }) => {
     loadData();
   }, [showCreators, endpoint, enhanceGraphDataWithCreators]);
 
+  const handleSearch = (results) => {
+    if (results && results.length > 0) {
+      const searchGraphData = transformToGraphData(results);
+      setGraphData(searchGraphData);
+      setIsHighlightingSearchResults(true);
+      
+      setGraphHistory((prevHistory) => {
+        const updatedHistory = prevHistory.slice(0, currentHistoryIndex + 1);
+        updatedHistory.push({ graphData, selectedTriple: null });
+        return updatedHistory;
+      });
+      setCurrentHistoryIndex((prevIndex) => prevIndex + 1);
+    }
+    setIsSearching(false);
+  };
+
+  const handleSearchStart = () => {
+    setIsSearching(true);
+  };
+
   const resetGraph = useCallback(() => {
     setGraphData(initialGraphData);
     setSelectedTriple(null);
@@ -96,6 +119,7 @@ const GraphVisualization = ({ endpoint }) => {
     setPredicateFilter("");
     setObjectFilter("");
     setShouldSearch(false);
+    setIsHighlightingSearchResults(false);
   }, [initialGraphData]);
 
   const handleNodeClick = useCallback(
@@ -278,97 +302,94 @@ const GraphVisualization = ({ endpoint }) => {
   }, [shouldSearch, applyFilters]);
 
   return (
-    <div>
-      {(isLoading || isSearching) && <LoadingAnimation />}
-      <button
-        className="navigation-button"
-        onClick={resetGraph}
-        style={{
-          position: "absolute",
-          top: "75px",
-          left: "10px",
-          zIndex: 50,
-          width: "143px",
-        }}
-      >
-        Hello world !
-      </button>
-
-      <button
-        className="navigation-button"
-        onClick={goBack}
-        style={{
-          position: "absolute",
-          top: "110px",
-          left: "10px",
-          width: "70px",
-          zIndex: 50,
-        }}
-        disabled={currentHistoryIndex <= 0}
-      >
-        Previous
-      </button>
-      <button
-        className="navigation-button"
-        onClick={goForward}
-        style={{
-          position: "absolute",
-          top: "110px",
-          left: "83px",
-          width: "70px",
-          zIndex: 50,
-        }}
-        disabled={currentHistoryIndex >= graphHistory.length - 1}
-      >
-        Next
-      </button>
-
-      <div
-        style={{
-          position: "absolute",
-          top: "10px",
-          right: "10px",
-          zIndex: 10,
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          background: "#444",
-          color: "black",
-          padding: "10px",
-          borderRadius: "4px",
-        }}
-      >
-        <label htmlFor="viewMode" style={{ fontSize: "14px" }}>
-          View Mode:
-        </label>
-        <select
-          id="viewMode"
-          value={viewMode}
-          onChange={(e) => setViewMode(e.target.value)}
+    <div className="graph-visualization-container">
+      {/* Barre de recherche centrée en haut */}
+      <div className="search-bar-container">
+        <SmartSearchInterface
+          endpoint={endpoint}
+          onSearch={handleSearch}
+          isSearching={isSearching}
+          onSearchStart={handleSearchStart}
+        />
+      </div>
+      
+      {/* Contrôles de navigation à gauche (boutons) */}
+      <div className="navigation-controls">
+        <button
+          onClick={resetGraph}
+          className="navigation-button"
           style={{
-            padding: "5px",
-            borderRadius: "4px",
+            backgroundColor: "#4CAF50",
+            color: "white",
+            marginRight: "10px",
             border: "none",
-            cursor: "pointer",
-            fontSize: "14px",
           }}
         >
-          <option value="2D">2D</option>
-          <option value="3D">3D</option>
-          <option value="VR">VR</option>
-        </select>
+          Return to initial graph
+        </button>
+        <button
+          onClick={goBack}
+          disabled={currentHistoryIndex <= 0}
+          className="navigation-button"
+          style={{
+            backgroundColor: "#2196F3",
+            color: "white",
+            marginRight: "5px",
+            border: "none",
+          }}
+        >
+          Previous
+        </button>
+        <button
+          onClick={goForward}
+          disabled={currentHistoryIndex >= graphHistory.length - 1}
+          className="navigation-button"
+          style={{
+            backgroundColor: "#2196F3",
+            color: "white",
+            border: "none",
+          }}
+        >
+          Next
+        </button>
+      </div>
+      
+      {/* Contrôles originaux à droite */}
+      <div className="original-controls">
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <label style={{ fontSize: "14px", color: "white", marginRight: "5px" }}>
+            View Mode:
+          </label>
+          <select
+            id="viewMode"
+            value={viewMode}
+            onChange={(e) => setViewMode(e.target.value)}
+            style={{
+              padding: "5px",
+              borderRadius: "4px",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "14px",
+            }}
+          >
+            <option value="2D">2D</option>
+            <option value="3D">3D</option>
+            <option value="VR">VR</option>
+          </select>
 
-        <label style={{ fontSize: "14px", marginLeft: "10px" }}>
-          Show Creators
-          <input
-            type="checkbox"
-            checked={showCreators}
-            onChange={(e) => setShowCreators(e.target.checked)}
-            style={{ marginLeft: "8px" }}
-          />
-        </label>
-        {/* Filtres alignés horizontalement sous l'endpoint */}
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <label style={{ fontSize: "14px", color: "white" }}>
+            Show Creators
+            <input
+              type="checkbox"
+              checked={showCreators}
+              onChange={(e) => setShowCreators(e.target.checked)}
+              style={{ marginLeft: "8px" }}
+            />
+          </label>
+        </div>
+        
+        {/* Filtres alignés horizontalement */}
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", marginTop: "5px" }}>
           <input
             type="text"
             value={subjectFilter}
@@ -411,6 +432,7 @@ const GraphVisualization = ({ endpoint }) => {
         </div>
       </div>
 
+      {/* Reste du contenu (graphe, légende, etc.) */}
       {viewMode === "2D" && (
         <ForceGraph2D
           ref={(el) => (fgRef.current = el)}
@@ -526,6 +548,12 @@ const GraphVisualization = ({ endpoint }) => {
           endpoint={endpoint}
           onClose={() => setSelectedTriple(null)}
         />
+      )}
+
+      {isHighlightingSearchResults && (
+        <div className="search-results-info">
+          Affichage des résultats de recherche
+        </div>
       )}
     </div>
   );
