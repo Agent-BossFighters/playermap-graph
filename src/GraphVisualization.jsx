@@ -291,7 +291,7 @@ const GraphVisualization = ({ endpoint }) => {
           width: "143px",
         }}
       >
-        Return to initial graph
+        Hello world !
       </button>
 
       <button
