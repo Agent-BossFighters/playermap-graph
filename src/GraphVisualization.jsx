@@ -9,9 +9,10 @@ import GraphVR from "./GraphVR";
 import NodeDetailsSidebar from "./NodeDetailsSidebar";
 import LoadingAnimation from "./LoadingAnimation";
 import SmartSearchInterface from "./components/SmartSearchInterface";
+import ChatBox from "./components/ChatBox";
 import "./GraphVisualization.css";
 
-const GraphVisualization = ({ endpoint }) => {
+const GraphVisualization = ({ endpoint, walletAddress }) => {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [initialGraphData, setInitialGraphData] = useState(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -303,6 +304,9 @@ const GraphVisualization = ({ endpoint }) => {
 
   return (
     <div className="graph-visualization-container">
+      {/* Toujours afficher le ChatBox, même si walletAddress est undefined */}
+      <ChatBox walletAddress={walletAddress || "0x25d5C9DbC1E12163B973261A08739927E4F72BA7"} />
+      
       {/* Barre de recherche centrée en haut */}
       <div className="search-bar-container">
         <SmartSearchInterface
