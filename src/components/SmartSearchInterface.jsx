@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getSmartSuggestions, searchWithFilters } from "../services/aiSuggestionService";
+import { NODE_COLORS } from "../nodeColors"; // Importation des couleurs
 
 const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
   const [query, setQuery] = useState("");
@@ -163,13 +164,13 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
     },
     subjectChip: {
-      backgroundColor: '#5683E8' // Bleu plus vif
+      backgroundColor: NODE_COLORS.SUBJECT
     },
     predicateChip: {
-      backgroundColor: '#56B3E8' // Bleu clair
+      backgroundColor: NODE_COLORS.PREDICATE
     },
     objectChip: {
-      backgroundColor: '#56E8B3' // Vert-bleu
+      backgroundColor: NODE_COLORS.OBJECT
     },
     chipButton: {
       background: 'none',
@@ -266,6 +267,58 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
     },
     tripleSuggestionItemHover: {
       backgroundColor: 'rgba(80, 120, 220, 0.4)'
+    },
+    subjectSuggestion: {
+      backgroundColor: `${NODE_COLORS.SUBJECT}33`, // Ajout de transparence (33 en hex)
+      borderLeft: `3px solid ${NODE_COLORS.SUBJECT}`
+    },
+    predicateSuggestion: {
+      backgroundColor: `${NODE_COLORS.PREDICATE}33`,
+      borderLeft: `3px solid ${NODE_COLORS.PREDICATE}`
+    },
+    objectSuggestion: {
+      backgroundColor: `${NODE_COLORS.OBJECT}33`,
+      borderLeft: `3px solid ${NODE_COLORS.OBJECT}`
+    },
+    tripleSuggestion: {
+      padding: '10px 14px',
+      borderRadius: '12px',
+      fontSize: '14px',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      backgroundColor: 'rgba(30, 30, 40, 0.7)',
+      backdropFilter: 'blur(5px)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      display: 'flex',
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: '8px',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    tripleSuggestionHover: {
+      backgroundColor: 'rgba(50, 50, 60, 0.8)',
+    },
+    tripleSubjectPart: {
+      color: NODE_COLORS.SUBJECT,
+      fontWeight: '500',
+      padding: '2px 6px',
+      borderRadius: '4px',
+      backgroundColor: `${NODE_COLORS.SUBJECT}22`
+    },
+    triplePredicatePart: {
+      color: NODE_COLORS.PREDICATE,
+      fontWeight: '500',
+      padding: '2px 6px',
+      borderRadius: '4px',
+      backgroundColor: `${NODE_COLORS.PREDICATE}22`
+    },
+    tripleObjectPart: {
+      color: NODE_COLORS.OBJECT,
+      fontWeight: '500',
+      padding: '2px 6px',
+      borderRadius: '4px',
+      backgroundColor: `${NODE_COLORS.OBJECT}22`
     }
   };
 
@@ -381,6 +434,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
                     key={`subject-${index}`} 
                     style={{
                       ...styles.suggestionItem,
+                      ...styles.subjectSuggestion,
                       ...(hoverSuggestion === `subject-${index}` ? styles.suggestionItemHover : {}),
                       ...(selectedFilters.subject === subject ? styles.selectedSuggestion : {})
                     }}
@@ -404,6 +458,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
                     key={`predicate-${index}`} 
                     style={{
                       ...styles.suggestionItem,
+                      ...styles.predicateSuggestion,
                       ...(hoverSuggestion === `predicate-${index}` ? styles.suggestionItemHover : {}),
                       ...(selectedFilters.predicate === predicate ? styles.selectedSuggestion : {})
                     }}
@@ -427,6 +482,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
                     key={`object-${index}`} 
                     style={{
                       ...styles.suggestionItem,
+                      ...styles.objectSuggestion,
                       ...(hoverSuggestion === `object-${index}` ? styles.suggestionItemHover : {}),
                       ...(selectedFilters.object === object ? styles.selectedSuggestion : {})
                     }}
@@ -449,8 +505,8 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
                   <div 
                     key={`triple-${index}`} 
                     style={{
-                      ...styles.tripleSuggestionItem,
-                      ...(hoverSuggestion === `triple-${index}` ? styles.tripleSuggestionItemHover : {})
+                      ...styles.tripleSuggestion,
+                      ...(hoverSuggestion === `triple-${index}` ? styles.tripleSuggestionHover : {})
                     }}
                     onClick={() => {
                       setSelectedFilters({
@@ -462,7 +518,9 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
                     onMouseEnter={() => setHoverSuggestion(`triple-${index}`)}
                     onMouseLeave={() => setHoverSuggestion(null)}
                   >
-                    {`${triple.subject} ${triple.predicate} ${triple.object}`}
+                    <span style={styles.tripleSubjectPart}>{triple.subject}</span>
+                    <span style={styles.triplePredicatePart}>{triple.predicate}</span>
+                    <span style={styles.tripleObjectPart}>{triple.object}</span>
                   </div>
                 ))}
               </div>
