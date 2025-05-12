@@ -6,7 +6,8 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
   const [suggestions, setSuggestions] = useState({
     subjects: [],
     predicates: [],
-    objects: []
+    objects: [],
+    triples: []
   });
   const [selectedFilters, setSelectedFilters] = useState({
     subject: "",
@@ -50,7 +51,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
         }
       }, 300);
     } else {
-      setSuggestions({ subjects: [], predicates: [], objects: [] });
+      setSuggestions({ subjects: [], predicates: [], objects: [], triples: [] });
       setShowSuggestions(false);
     }
 
@@ -251,6 +252,20 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
     selectedSuggestion: {
       backgroundColor: '#4A66E8',
       color: 'white'
+    },
+    tripleSuggestionItem: {
+      padding: '8px 14px',
+      borderRadius: '18px',
+      backgroundColor: 'rgba(80, 120, 220, 0.2)',
+      fontSize: '14px',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      color: 'rgba(255, 255, 255, 0.9)',
+      whiteSpace: 'normal',
+      lineHeight: '1.4'
+    },
+    tripleSuggestionItemHover: {
+      backgroundColor: 'rgba(80, 120, 220, 0.4)'
     }
   };
 
@@ -420,6 +435,34 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
                     onMouseLeave={() => setHoverSuggestion(null)}
                   >
                     {object}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {suggestions.triples && suggestions.triples.length > 0 && (
+            <div style={styles.suggestionCategory}>
+              <div style={styles.categoryHeader}>Triplets suggérés</div>
+              <div style={styles.suggestionList}>
+                {suggestions.triples.map((triple, index) => (
+                  <div 
+                    key={`triple-${index}`} 
+                    style={{
+                      ...styles.tripleSuggestionItem,
+                      ...(hoverSuggestion === `triple-${index}` ? styles.tripleSuggestionItemHover : {})
+                    }}
+                    onClick={() => {
+                      setSelectedFilters({
+                        subject: triple.subject,
+                        predicate: triple.predicate,
+                        object: triple.object
+                      });
+                    }}
+                    onMouseEnter={() => setHoverSuggestion(`triple-${index}`)}
+                    onMouseLeave={() => setHoverSuggestion(null)}
+                  >
+                    {`${triple.subject} ${triple.predicate} ${triple.object}`}
                   </div>
                 ))}
               </div>

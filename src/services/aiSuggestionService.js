@@ -40,7 +40,7 @@ const getCachedTriples = async (endpoint) => {
 // Fonction principale pour obtenir des suggestions intelligentes basées sur la saisie utilisateur
 export const getSmartSuggestions = async (query, endpoint = "base", limit = 5) => {
   if (!query || query.length < 2) {
-    return { subjects: [], predicates: [], objects: [] };
+    return { subjects: [], predicates: [], objects: [], triples: [] };
   }
 
   try {
@@ -54,7 +54,7 @@ export const getSmartSuggestions = async (query, endpoint = "base", limit = 5) =
     // return await getAISuggestions(query, triples, limit);
   } catch (error) {
     console.error("Erreur lors de la génération des suggestions:", error);
-    return { subjects: [], predicates: [], objects: [] };
+    return { subjects: [], predicates: [], objects: [], triples: [] };
   }
 };
 
@@ -86,7 +86,26 @@ const getLocalSuggestions = (query, triples, limit) => {
       .slice(0, limit)
   )];
   
-  return { subjects, predicates, objects };
+  // Filtrer et extraire les triplets complets correspondant à la requête
+  const triplesResults = triples
+    .filter(triple => 
+      triple.subject.label.toLowerCase().includes(lowerQuery) ||
+      triple.predicate.label.toLowerCase().includes(lowerQuery) ||
+      triple.object.label.toLowerCase().includes(lowerQuery)
+    )
+    .map(triple => ({
+      subject: triple.subject.label,
+      predicate: triple.predicate.label,
+      object: triple.object.label
+    }))
+    .slice(0, limit);
+  
+  return { 
+    subjects, 
+    predicates, 
+    objects,
+    triples: triplesResults
+  };
 };
 
 // Méthode utilisant une API d'IA pour générer des suggestions plus intelligentes
@@ -122,6 +141,7 @@ const getAISuggestions = async (query, triples, limit) => {
         subjects: suggestions.sujets || [],
         predicates: suggestions.prédicats || [],
         objects: suggestions.objets || [],
+        triples: suggestions.triplets || []
       };
     } catch (parseError) {
       console.error("Erreur lors de l'analyse de la réponse de l'IA:", parseError);
