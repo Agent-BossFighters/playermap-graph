@@ -19,7 +19,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
   const searchTimeoutRef = useRef(null);
   const suggestionsRef = useRef(null);
 
-  // Gérer les clics en dehors du conteneur de suggestions
+  // Handle clicks outside the suggestions container
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
@@ -33,7 +33,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
     };
   }, []);
 
-  // Obtenir des suggestions
+  // Get suggestions
   useEffect(() => {
     if (query.length >= 2) {
       clearTimeout(searchTimeoutRef.current);
@@ -48,7 +48,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
             smartSuggestions.objects.length > 0
           );
         } catch (error) {
-          console.error("Erreur lors de la récupération des suggestions:", error);
+          console.error("Error retrieving suggestions:", error);
         }
       }, 300);
     } else {
@@ -61,7 +61,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
     };
   }, [query, endpoint]);
 
-  // Appliquer un filtre
+  // Apply filter
   const applyFilter = (type, value) => {
     setSelectedFilters(prev => {
       if (prev[type] === value) {
@@ -71,19 +71,19 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
     });
   };
 
-  // Effectuer la recherche
+  // Perform search
   const handleSearch = async () => {
     try {
       const results = await searchWithFilters(query, selectedFilters, endpoint);
       onSearch(results);
     } catch (error) {
-      console.error("Erreur lors de la recherche:", error);
+      console.error("Error during search:", error);
     }
   };
 
   const hasActiveFilters = selectedFilters.subject || selectedFilters.predicate || selectedFilters.object;
 
-  // Styles inline modernisés avec meilleur contraste
+  // Modern inline styles with better contrast
   const styles = {
     container: {
       width: '100%',
@@ -98,7 +98,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
       borderRadius: '8px',
       overflow: 'hidden',
-      backgroundColor: 'rgba(30, 30, 40, 0.6)', // Fond semi-transparent foncé
+      backgroundColor: 'rgba(30, 30, 40, 0.6)', // Semi-transparent dark background
       backdropFilter: 'blur(5px)',
       border: '1px solid rgba(255, 255, 255, 0.2)'
     },
@@ -117,7 +117,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
     },
     button: {
       padding: '0 22px',
-      backgroundColor: '#4A66E8', // Bleu plus moderne
+      backgroundColor: '#4A66E8', // Modern blue
       color: 'white',
       border: 'none',
       cursor: 'pointer',
@@ -137,7 +137,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
       flexWrap: 'wrap',
       alignItems: 'center',
       marginTop: '12px',
-      padding: '10px 14px',
+      padding: '8px 12px',
       backgroundColor: 'rgba(30, 30, 40, 0.7)',
       borderRadius: '6px',
       border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -147,44 +147,45 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
       fontWeight: '600',
       marginRight: '12px',
       color: 'rgba(255, 255, 255, 0.9)',
-      fontSize: '14px'
+      fontSize: '13px'
     },
     filtersChips: {
       display: 'flex',
       flexWrap: 'wrap',
-      gap: '8px'
+      gap: '6px',
+      flex: 1
     },
     filterChip: {
       display: 'flex',
       alignItems: 'center',
-      padding: '6px 12px',
-      borderRadius: '20px',
-      fontSize: '14px',
+      padding: '3px 8px',
+      borderRadius: '16px',
+      fontSize: '12px',
       color: 'white',
       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
     },
     subjectChip: {
-      backgroundColor: NODE_COLORS.SUBJECT
+      backgroundColor: `${NODE_COLORS.SUBJECT}cc` // More transparent version
     },
     predicateChip: {
-      backgroundColor: NODE_COLORS.PREDICATE
+      backgroundColor: `${NODE_COLORS.PREDICATE}cc`
     },
     objectChip: {
-      backgroundColor: NODE_COLORS.OBJECT
+      backgroundColor: `${NODE_COLORS.OBJECT}cc`
     },
     chipButton: {
       background: 'none',
       border: 'none',
       color: 'white',
-      marginLeft: '8px',
+      marginLeft: '4px',
       cursor: 'pointer',
-      fontSize: '18px',
+      fontSize: '14px',
       lineHeight: 1,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      width: '22px',
-      height: '22px',
+      width: '16px',
+      height: '16px',
       borderRadius: '50%',
       transition: 'background-color 0.2s ease'
     },
@@ -192,16 +193,17 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
       backgroundColor: 'rgba(255, 255, 255, 0.2)'
     },
     clearButton: {
-      padding: '6px 12px',
-      backgroundColor: 'rgba(255, 70, 70, 0.8)', // Rouge plus transparent
+      padding: '4px 10px',
+      backgroundColor: 'rgba(255, 70, 70, 0.8)', // More transparent red
       color: 'white',
       border: 'none',
-      borderRadius: '20px',
+      borderRadius: '16px',
       cursor: 'pointer',
-      fontSize: '14px',
+      fontSize: '12px',
       fontWeight: '500',
       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      transition: 'background-color 0.2s ease'
+      transition: 'background-color 0.2s ease',
+      marginLeft: 'auto'
     },
     clearButtonHover: {
       backgroundColor: 'rgba(255, 70, 70, 1)'
@@ -239,26 +241,26 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
       gap: '8px'
     },
     suggestionItem: {
-      padding: '6px 12px',
-      borderRadius: '18px',
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      fontSize: '14px',
+      padding: '3px 8px',
+      borderRadius: '16px',
+      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+      fontSize: '12px',
       cursor: 'pointer',
       transition: 'all 0.2s ease',
       color: 'rgba(255, 255, 255, 0.9)'
     },
     suggestionItemHover: {
-      backgroundColor: 'rgba(255, 255, 255, 0.2)'
+      backgroundColor: 'rgba(255, 255, 255, 0.25)'
     },
     selectedSuggestion: {
       backgroundColor: '#4A66E8',
       color: 'white'
     },
     tripleSuggestionItem: {
-      padding: '8px 14px',
-      borderRadius: '18px',
-      backgroundColor: 'rgba(80, 120, 220, 0.2)',
-      fontSize: '14px',
+      padding: '6px 12px',
+      borderRadius: '16px',
+      backgroundColor: 'rgba(80, 120, 220, 0.25)',
+      fontSize: '13px',
       cursor: 'pointer',
       transition: 'all 0.2s ease',
       color: 'rgba(255, 255, 255, 0.9)',
@@ -266,63 +268,63 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
       lineHeight: '1.4'
     },
     tripleSuggestionItemHover: {
-      backgroundColor: 'rgba(80, 120, 220, 0.4)'
+      backgroundColor: 'rgba(80, 120, 220, 0.45)'
     },
     subjectSuggestion: {
-      backgroundColor: `${NODE_COLORS.SUBJECT}33`, // Ajout de transparence (33 en hex)
-      borderLeft: `3px solid ${NODE_COLORS.SUBJECT}`
+      backgroundColor: `${NODE_COLORS.SUBJECT}cc`, // Same color as filter chips
+      border: 'none'
     },
     predicateSuggestion: {
-      backgroundColor: `${NODE_COLORS.PREDICATE}33`,
-      borderLeft: `3px solid ${NODE_COLORS.PREDICATE}`
+      backgroundColor: `${NODE_COLORS.PREDICATE}cc`,
+      border: 'none'
     },
     objectSuggestion: {
-      backgroundColor: `${NODE_COLORS.OBJECT}33`,
-      borderLeft: `3px solid ${NODE_COLORS.OBJECT}`
+      backgroundColor: `${NODE_COLORS.OBJECT}cc`,
+      border: 'none'
     },
     tripleSuggestion: {
-      padding: '10px 14px',
+      padding: '8px 12px',
       borderRadius: '12px',
-      fontSize: '14px',
+      fontSize: '13px',
       cursor: 'pointer',
       transition: 'all 0.2s ease',
-      backgroundColor: 'rgba(30, 30, 40, 0.7)',
+      backgroundColor: 'rgba(30, 30, 40, 0.55)',
       backdropFilter: 'blur(5px)',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
+      border: '1px solid rgba(255, 255, 255, 0.15)',
       display: 'flex',
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: '8px',
+      gap: '6px',
       alignItems: 'center',
       justifyContent: 'center'
     },
     tripleSuggestionHover: {
-      backgroundColor: 'rgba(50, 50, 60, 0.8)',
+      backgroundColor: 'rgba(50, 50, 60, 0.65)',
     },
     tripleSubjectPart: {
       color: NODE_COLORS.SUBJECT,
       fontWeight: '500',
       padding: '2px 6px',
       borderRadius: '4px',
-      backgroundColor: `${NODE_COLORS.SUBJECT}22`
+      backgroundColor: `${NODE_COLORS.SUBJECT}33`
     },
     triplePredicatePart: {
       color: NODE_COLORS.PREDICATE,
       fontWeight: '500',
       padding: '2px 6px',
       borderRadius: '4px',
-      backgroundColor: `${NODE_COLORS.PREDICATE}22`
+      backgroundColor: `${NODE_COLORS.PREDICATE}33`
     },
     tripleObjectPart: {
       color: NODE_COLORS.OBJECT,
       fontWeight: '500',
       padding: '2px 6px',
       borderRadius: '4px',
-      backgroundColor: `${NODE_COLORS.OBJECT}22`
+      backgroundColor: `${NODE_COLORS.OBJECT}33`
     }
   };
 
-  // États pour gérer le hover
+  // States to manage hover
   const [buttonHover, setButtonHover] = useState(false);
   const [clearButtonHover, setClearButtonHover] = useState(false);
   const [hoverChipButton, setHoverChipButton] = useState(null);
@@ -335,7 +337,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Recherchez des triples..."
+          placeholder="Search for triples..."
           style={{
             ...styles.input,
           }}
@@ -352,17 +354,17 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
           onMouseEnter={() => setButtonHover(true)}
           onMouseLeave={() => setButtonHover(false)}
         >
-          {isSearching ? "Recherche..." : "Rechercher"}
+          {isSearching ? "Searching..." : "Search"}
         </button>
       </div>
       
       {hasActiveFilters && (
         <div style={styles.activeFilters}>
-          <div style={styles.filtersLabel}>Filtres actifs:</div>
+          <div style={styles.filtersLabel}>Active filters:</div>
           <div style={styles.filtersChips}>
             {selectedFilters.subject && (
               <div style={{...styles.filterChip, ...styles.subjectChip}}>
-                <span>Sujet: {selectedFilters.subject}</span>
+                <span>Subject: {selectedFilters.subject}</span>
                 <button 
                   onClick={() => applyFilter('subject', selectedFilters.subject)}
                   style={{
@@ -378,7 +380,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
             )}
             {selectedFilters.predicate && (
               <div style={{...styles.filterChip, ...styles.predicateChip}}>
-                <span>Prédicat: {selectedFilters.predicate}</span>
+                <span>Predicate: {selectedFilters.predicate}</span>
                 <button 
                   onClick={() => applyFilter('predicate', selectedFilters.predicate)}
                   style={{
@@ -394,7 +396,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
             )}
             {selectedFilters.object && (
               <div style={{...styles.filterChip, ...styles.objectChip}}>
-                <span>Objet: {selectedFilters.object}</span>
+                <span>Object: {selectedFilters.object}</span>
                 <button 
                   onClick={() => applyFilter('object', selectedFilters.object)}
                   style={{
@@ -408,18 +410,18 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
                 </button>
               </div>
             )}
-            <button 
-              onClick={() => setSelectedFilters({subject: "", predicate: "", object: ""})} 
-              style={{
-                ...styles.clearButton,
-                ...(clearButtonHover ? styles.clearButtonHover : {})
-              }}
-              onMouseEnter={() => setClearButtonHover(true)}
-              onMouseLeave={() => setClearButtonHover(false)}
-            >
-              Effacer tous les filtres
-            </button>
           </div>
+          <button 
+            onClick={() => setSelectedFilters({subject: "", predicate: "", object: ""})} 
+            style={{
+              ...styles.clearButton,
+              ...(clearButtonHover ? styles.clearButtonHover : {})
+            }}
+            onMouseEnter={() => setClearButtonHover(true)}
+            onMouseLeave={() => setClearButtonHover(false)}
+          >
+            Clear all filters
+          </button>
         </div>
       )}
       
@@ -427,7 +429,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
         <div style={styles.suggestionsContainer} ref={suggestionsRef}>
           {suggestions.subjects.length > 0 && (
             <div style={styles.suggestionCategory}>
-              <div style={styles.categoryHeader}>Sujets suggérés</div>
+              <div style={styles.categoryHeader}>Suggested Subjects</div>
               <div style={styles.suggestionList}>
                 {suggestions.subjects.map((subject, index) => (
                   <div 
@@ -451,7 +453,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
           
           {suggestions.predicates.length > 0 && (
             <div style={styles.suggestionCategory}>
-              <div style={styles.categoryHeader}>Prédicats suggérés</div>
+              <div style={styles.categoryHeader}>Suggested Predicates</div>
               <div style={styles.suggestionList}>
                 {suggestions.predicates.map((predicate, index) => (
                   <div 
@@ -475,7 +477,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
           
           {suggestions.objects.length > 0 && (
             <div style={styles.suggestionCategory}>
-              <div style={styles.categoryHeader}>Objets suggérés</div>
+              <div style={styles.categoryHeader}>Suggested Objects</div>
               <div style={styles.suggestionList}>
                 {suggestions.objects.map((object, index) => (
                   <div 
@@ -499,7 +501,7 @@ const SmartSearchInterface = ({ endpoint, onSearch, isSearching }) => {
           
           {suggestions.triples && suggestions.triples.length > 0 && (
             <div style={styles.suggestionCategory}>
-              <div style={styles.categoryHeader}>Triplets suggérés</div>
+              <div style={styles.categoryHeader}>Suggested Triples</div>
               <div style={styles.suggestionList}>
                 {suggestions.triples.map((triple, index) => (
                   <div 
