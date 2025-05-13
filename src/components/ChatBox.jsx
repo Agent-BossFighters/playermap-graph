@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import "./ChatBox.css";
+
 
 const ChatBox = ({ walletAddress }) => {
   const [messages, setMessages] = useState([]);
@@ -34,36 +34,23 @@ const ChatBox = ({ walletAddress }) => {
     setIsLoading(true);
     
     try {
-      console.log("Envoi de la requête à l'API avec l'adresse:", walletAddress);
+      // URL relative qui fonctionnera avec les configurations de proxy
+      const API_URL = '/api/completion';
       
-      // Payload avec format explicite
-      const payload = {
-        text: input,
-        walletAddress: walletAddress || "0x25d5C9DbC1E12163B973261A08739927E4F72BA8"
-      };
-      
-      console.log("Payload:", payload);
-      
-      // Appel à l'API Intuition Systems
       const response = await axios.post(
-        'https://chat.intuition.systems/api/completion',
-        payload,
+        API_URL,
+        {
+          text: input,
+          walletAddress: walletAddress || "0x25d5C9DbC1E12163B973261A08739927E4F72BA7"
+        },
         {
           headers: {
-            'Content-Type': 'application/json',
-            'sec-ch-ua-platform': 'Windows',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
-            'sec-ch-ua': '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
-            'sec-ch-ua-mobile': '?0',
-            'Origin': window.location.origin,
-            'Referer': 'https://chat.intuition.systems/'
+            'Content-Type': 'application/json'
+            // Ne pas inclure les en-têtes problématiques
           }
         }
       );
       
-      console.log("Réponse de l'API:", response.data);
-      
-      // Ajouter la réponse
       const aiMessage = {
         id: Date.now() + 1,
         text: response.data.text || response.data,
@@ -71,18 +58,19 @@ const ChatBox = ({ walletAddress }) => {
       };
       
       setMessages(prev => [...prev, aiMessage]);
+      setIsLoading(false);
+      
     } catch (error) {
       console.error("Erreur détaillée lors de l'appel à l'API:", error);
       
       // Message d'erreur plus informatif
       const errorMessage = {
         id: Date.now() + 1,
-        text: `Erreur: ${error.message || "Communication avec l'API impossible"}`,
+        text: "Impossible de communiquer avec l'API. Cette fonctionnalité nécessite un proxy serveur configuré pour gérer les requêtes CORS.",
         sender: "system"
       };
       
       setMessages(prev => [...prev, errorMessage]);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -146,7 +134,7 @@ const ChatBox = ({ walletAddress }) => {
       
       {!isMinimized && (
         <>
-          <div className="intuition-chat-messages" style={{ 
+          <div style={{ 
             flex: 1, 
             overflowY: 'auto', 
             padding: '15px', 
@@ -202,29 +190,33 @@ const ChatBox = ({ walletAddress }) => {
                 color: 'white'
               }}>
                 <div style={{ display: 'flex', gap: '4px' }}>
-                  <div style={{ 
+                  <span style={{ 
+                    display: 'inline-block',
                     width: '8px', 
                     height: '8px', 
                     borderRadius: '50%', 
                     backgroundColor: 'white',
-                    animation: 'pulse 1.5s infinite ease-in-out'
-                  }}></div>
-                  <div style={{ 
+                    opacity: 0.6,
+                    animation: 'intuition-dot-pulse 1.5s infinite ease-in-out'
+                  }}></span>
+                  <span style={{ 
+                    display: 'inline-block',
                     width: '8px', 
                     height: '8px', 
                     borderRadius: '50%', 
                     backgroundColor: 'white',
-                    animation: 'pulse 1.5s infinite ease-in-out',
-                    animationDelay: '0.2s'
-                  }}></div>
-                  <div style={{ 
+                    opacity: 0.6,
+                    animation: 'intuition-dot-pulse 1.5s infinite ease-in-out 0.2s'
+                  }}></span>
+                  <span style={{ 
+                    display: 'inline-block',
                     width: '8px', 
                     height: '8px', 
                     borderRadius: '50%', 
                     backgroundColor: 'white',
-                    animation: 'pulse 1.5s infinite ease-in-out',
-                    animationDelay: '0.4s'
-                  }}></div>
+                    opacity: 0.6,
+                    animation: 'intuition-dot-pulse 1.5s infinite ease-in-out 0.4s'
+                  }}></span>
                 </div>
               </div>
             )}
@@ -284,12 +276,14 @@ const ChatBox = ({ walletAddress }) => {
         </>
       )}
       
-      <style jsx="true">{`
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); opacity: 0.6; }
-          50% { transform: scale(1.3); opacity: 1; }
-        }
-      `}</style>
+      <style>
+        {`
+          @keyframes intuition-dot-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.3); opacity: 1; }
+          }
+        `}
+      </style>
     </div>
   );
 };

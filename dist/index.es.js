@@ -114998,44 +114998,32 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
     };
     n((b) => [...b, v]), s(""), l(!0);
     try {
-      console.log("Envoi de la requête à l'API avec l'adresse:", r);
-      const b = {
-        text: i,
-        walletAddress: r || "0x25d5C9DbC1E12163B973261A08739927E4F72BA8"
-      };
-      console.log("Payload:", b);
       const S = await Qs.post(
-        "https://chat.intuition.systems/api/completion",
-        b,
+        "/api/completion",
+        {
+          text: i,
+          walletAddress: r || "0x25d5C9DbC1E12163B973261A08739927E4F72BA7"
+        },
         {
           headers: {
-            "Content-Type": "application/json",
-            "sec-ch-ua-platform": "Windows",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
-            "sec-ch-ua": '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
-            "sec-ch-ua-mobile": "?0",
-            Origin: window.location.origin,
-            Referer: "https://chat.intuition.systems/"
+            "Content-Type": "application/json"
+            // Ne pas inclure les en-têtes problématiques
           }
         }
-      );
-      console.log("Réponse de l'API:", S.data);
-      const w = {
+      ), w = {
         id: Date.now() + 1,
         text: S.data.text || S.data,
         sender: "ai"
       };
-      n((C) => [...C, w]);
+      n((C) => [...C, w]), l(!1);
     } catch (b) {
       console.error("Erreur détaillée lors de l'appel à l'API:", b);
       const S = {
         id: Date.now() + 1,
-        text: `Erreur: ${b.message || "Communication avec l'API impossible"}`,
+        text: "Impossible de communiquer avec l'API. Cette fonctionnalité nécessite un proxy serveur configuré pour gérer les requêtes CORS.",
         sender: "system"
       };
-      n((w) => [...w, S]);
-    } finally {
-      l(!1);
+      n((w) => [...w, S]), l(!1);
     }
   }, g = (v) => {
     v.preventDefault(), p();
@@ -115084,7 +115072,7 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
       )
     ] }),
     !u && /* @__PURE__ */ Gt.jsxs(Gt.Fragment, { children: [
-      /* @__PURE__ */ Gt.jsxs("div", { className: "intuition-chat-messages", style: {
+      /* @__PURE__ */ Gt.jsxs("div", { style: {
         flex: 1,
         overflowY: "auto",
         padding: "15px",
@@ -115129,28 +115117,32 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
           backgroundColor: "rgba(50, 50, 60, 0.9)",
           color: "white"
         }, children: /* @__PURE__ */ Gt.jsxs("div", { style: { display: "flex", gap: "4px" }, children: [
-          /* @__PURE__ */ Gt.jsx("div", { style: {
+          /* @__PURE__ */ Gt.jsx("span", { style: {
+            display: "inline-block",
             width: "8px",
             height: "8px",
             borderRadius: "50%",
             backgroundColor: "white",
-            animation: "pulse 1.5s infinite ease-in-out"
+            opacity: 0.6,
+            animation: "intuition-dot-pulse 1.5s infinite ease-in-out"
           } }),
-          /* @__PURE__ */ Gt.jsx("div", { style: {
+          /* @__PURE__ */ Gt.jsx("span", { style: {
+            display: "inline-block",
             width: "8px",
             height: "8px",
             borderRadius: "50%",
             backgroundColor: "white",
-            animation: "pulse 1.5s infinite ease-in-out",
-            animationDelay: "0.2s"
+            opacity: 0.6,
+            animation: "intuition-dot-pulse 1.5s infinite ease-in-out 0.2s"
           } }),
-          /* @__PURE__ */ Gt.jsx("div", { style: {
+          /* @__PURE__ */ Gt.jsx("span", { style: {
+            display: "inline-block",
             width: "8px",
             height: "8px",
             borderRadius: "50%",
             backgroundColor: "white",
-            animation: "pulse 1.5s infinite ease-in-out",
-            animationDelay: "0.4s"
+            opacity: 0.6,
+            animation: "intuition-dot-pulse 1.5s infinite ease-in-out 0.4s"
           } })
         ] }) }),
         /* @__PURE__ */ Gt.jsx("div", { ref: d })
@@ -115214,12 +115206,12 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
         }
       )
     ] }),
-    /* @__PURE__ */ Gt.jsx("style", { jsx: "true", children: `
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); opacity: 0.6; }
-          50% { transform: scale(1.3); opacity: 1; }
-        }
-      ` })
+    /* @__PURE__ */ Gt.jsx("style", { children: `
+          @keyframes intuition-dot-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.3); opacity: 1; }
+          }
+        ` })
   ] });
 }, yRe = ({ endpoint: r, walletAddress: e }) => {
   const [n, i] = Fr({ nodes: [], links: [] }), [s, a] = Fr(null), [l, u] = Fr(!0), [c, d] = Fr("2D"), [f, p] = Fr(null), [g, m] = Fr(!1), [y, _] = Fr(!1), v = _c(), [b, S] = Fr([]), [w, C] = Fr(0), T = _c(null), [D, I] = Fr(""), [L, P] = Fr(""), [N, U] = Fr(""), [Z, H] = Fr(!1), [G, $] = Fr(!1), [W, j] = Fr(!1), k = Uu(($e, Ke) => {
