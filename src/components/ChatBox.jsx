@@ -6,10 +6,10 @@ const ChatBox = ({ walletAddress }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
   const messagesEndRef = useRef(null);
 
-  // Fonction pour faire défiler automatiquement vers le bas
+  // Function to automatically scroll to the bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -18,11 +18,11 @@ const ChatBox = ({ walletAddress }) => {
     scrollToBottom();
   }, [messages]);
 
-  // Fonction pour envoyer un message à l'API Intuition Systems
+  // Function to send a message to the Intuition Systems API
   const sendMessage = async () => {
     if (!input.trim()) return;
     
-    // Ajouter le message de l'utilisateur
+    // Add the user message
     const userMessage = {
       id: Date.now(),
       text: input,
@@ -34,7 +34,7 @@ const ChatBox = ({ walletAddress }) => {
     setIsLoading(true);
     
     try {
-      // URL relative qui fonctionnera avec les configurations de proxy
+      // Relative URL that will work with proxy configurations
       const API_URL = '/api/completion';
       
       const response = await axios.post(
@@ -46,7 +46,6 @@ const ChatBox = ({ walletAddress }) => {
         {
           headers: {
             'Content-Type': 'application/json'
-            // Ne pas inclure les en-têtes problématiques
           }
         }
       );
@@ -61,12 +60,12 @@ const ChatBox = ({ walletAddress }) => {
       setIsLoading(false);
       
     } catch (error) {
-      console.error("Erreur détaillée lors de l'appel à l'API:", error);
+      console.error("Detailed error when calling the API:", error);
       
-      // Message d'erreur plus informatif
+      // More informative error message
       const errorMessage = {
         id: Date.now() + 1,
-        text: "Impossible de communiquer avec l'API. Cette fonctionnalité nécessite un proxy serveur configuré pour gérer les requêtes CORS.",
+        text: "Unable to communicate with API. This feature requires a server proxy configured to handle CORS requests.",
         sender: "system"
       };
       
@@ -75,57 +74,70 @@ const ChatBox = ({ walletAddress }) => {
     }
   };
 
-  // Gestion de la soumission du formulaire
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     sendMessage();
   };
 
-  // Toggle pour minimiser/maximiser
+  // Toggle to minimize/maximize
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
   };
 
-  // On ajoute un style directement dans le JSX pour s'assurer que les styles sont appliqués
+  // Add style directly in JSX to ensure styles are applied
   const boxStyle = {
     position: 'fixed',
-    bottom: '20px',
+    bottom: isMinimized ? '80px' : '20px',
     left: '20px',
-    width: '320px',
-    height: isMinimized ? '50px' : '400px',
+    width: isMinimized ? '200px' : '380px',
+    height: isMinimized ? '50px' : '500px',
     display: 'flex',
     flexDirection: 'column',
     borderRadius: '10px',
     overflow: 'hidden',
-    backgroundColor: 'rgba(30, 30, 40, 0.85)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    backgroundColor: isMinimized ? 'rgba(30, 30, 40, 0.75)' : 'rgba(30, 30, 40, 0.85)',
+    border: isMinimized ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(255, 255, 255, 0.2)',
     backdropFilter: 'blur(5px)',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+    boxShadow: isMinimized ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.25)',
     zIndex: 9999,
-    transition: 'height 0.3s ease'
+    transition: 'all 0.3s ease'
   };
 
   const headerStyle = {
-    padding: '10px 15px',
+    padding: isMinimized ? '8px 12px' : '10px 15px',
     backgroundColor: 'rgba(40, 40, 50, 0.9)',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+    borderBottom: isMinimized ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: isMinimized ? 'center' : 'space-between',
     alignItems: 'center',
+    height: isMinimized ? '100%' : 'auto',
     cursor: 'pointer'
   };
 
   return (
     <div id="intuition-chat-container" style={boxStyle} className="intuition-chat-box">
       <div style={headerStyle} onClick={toggleMinimize}>
-        <h3 style={{ margin: 0, color: 'white', fontSize: '16px', fontWeight: 600 }}>Intuition Chat</h3>
+        <h3 style={{ 
+          margin: 0, 
+          color: 'white', 
+          fontSize: '16px', 
+          fontWeight: 600,
+          marginRight: isMinimized ? '12px' : 0
+        }}>
+          Intuition Chat
+        </h3>
         <button 
           style={{ 
             background: 'transparent', 
             border: 'none', 
             color: 'white', 
             fontSize: '20px', 
-            cursor: 'pointer' 
+            cursor: 'pointer',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
           {isMinimized ? '+' : '−'}
@@ -152,7 +164,7 @@ const ChatBox = ({ walletAddress }) => {
                 fontSize: '14px', 
                 textAlign: 'center' 
               }}>
-                <p>Commencez une conversation avec Intuition</p>
+                <p>Start a conversation with Intuition</p>
               </div>
             ) : (
               messages.map(message => (
@@ -237,7 +249,7 @@ const ChatBox = ({ walletAddress }) => {
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Posez votre question..."
+              placeholder="Ask your question..."
               disabled={isLoading}
               style={{ 
                 flex: 1, 

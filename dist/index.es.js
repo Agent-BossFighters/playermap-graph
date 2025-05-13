@@ -114985,7 +114985,7 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
     ] })
   ] });
 }, NSe = ({ walletAddress: r }) => {
-  const [e, n] = Fr([]), [i, s] = Fr(""), [a, l] = Fr(!1), [u, c] = Fr(!1), d = _c(null), f = () => {
+  const [e, n] = Fr([]), [i, s] = Fr(""), [a, l] = Fr(!1), [u, c] = Fr(!0), d = _c(null), f = () => {
     var v;
     (v = d.current) == null || v.scrollIntoView({ behavior: "smooth" });
   };
@@ -115010,7 +115010,6 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
         {
           headers: {
             "Content-Type": "application/json"
-            // Ne pas inclure les en-têtes problématiques
           }
         }
       ), w = {
@@ -115020,10 +115019,10 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
       };
       n((C) => [...C, w]), l(!1);
     } catch (b) {
-      console.error("Erreur détaillée lors de l'appel à l'API:", b);
+      console.error("Detailed error when calling the API:", b);
       const S = {
         id: Date.now() + 1,
-        text: "Impossible de communiquer avec l'API. Cette fonctionnalité nécessite un proxy serveur configuré pour gérer les requêtes CORS.",
+        text: "Unable to communicate with API. This feature requires a server proxy configured to handle CORS requests.",
         sender: "system"
       };
       n((w) => [...w, S]), l(!1);
@@ -115034,32 +115033,39 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
     c(!u);
   }, y = {
     position: "fixed",
-    bottom: "20px",
+    bottom: u ? "80px" : "20px",
     left: "20px",
-    width: "320px",
-    height: u ? "50px" : "400px",
+    width: u ? "200px" : "380px",
+    height: u ? "50px" : "500px",
     display: "flex",
     flexDirection: "column",
     borderRadius: "10px",
     overflow: "hidden",
-    backgroundColor: "rgba(30, 30, 40, 0.85)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
+    backgroundColor: u ? "rgba(30, 30, 40, 0.75)" : "rgba(30, 30, 40, 0.85)",
+    border: u ? "1px solid rgba(255, 255, 255, 0.15)" : "1px solid rgba(255, 255, 255, 0.2)",
     backdropFilter: "blur(5px)",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.25)",
+    boxShadow: u ? "none" : "0 4px 12px rgba(0, 0, 0, 0.25)",
     zIndex: 9999,
-    transition: "height 0.3s ease"
+    transition: "all 0.3s ease"
   }, _ = {
-    padding: "10px 15px",
+    padding: u ? "8px 12px" : "10px 15px",
     backgroundColor: "rgba(40, 40, 50, 0.9)",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+    borderBottom: u ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: u ? "center" : "space-between",
     alignItems: "center",
+    height: u ? "100%" : "auto",
     cursor: "pointer"
   };
   return /* @__PURE__ */ Gt.jsxs("div", { id: "intuition-chat-container", style: y, className: "intuition-chat-box", children: [
     /* @__PURE__ */ Gt.jsxs("div", { style: _, onClick: m, children: [
-      /* @__PURE__ */ Gt.jsx("h3", { style: { margin: 0, color: "white", fontSize: "16px", fontWeight: 600 }, children: "Intuition Chat" }),
+      /* @__PURE__ */ Gt.jsx("h3", { style: {
+        margin: 0,
+        color: "white",
+        fontSize: "16px",
+        fontWeight: 600,
+        marginRight: u ? "12px" : 0
+      }, children: "Intuition Chat" }),
       /* @__PURE__ */ Gt.jsx(
         "button",
         {
@@ -115068,7 +115074,11 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
             border: "none",
             color: "white",
             fontSize: "20px",
-            cursor: "pointer"
+            cursor: "pointer",
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
           },
           children: u ? "+" : "−"
         }
@@ -115091,7 +115101,7 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
           color: "rgba(255, 255, 255, 0.6)",
           fontSize: "14px",
           textAlign: "center"
-        }, children: /* @__PURE__ */ Gt.jsx("p", { children: "Commencez une conversation avec Intuition" }) }) : e.map((v) => /* @__PURE__ */ Gt.jsx(
+        }, children: /* @__PURE__ */ Gt.jsx("p", { children: "Start a conversation with Intuition" }) }) : e.map((v) => /* @__PURE__ */ Gt.jsx(
           "div",
           {
             style: {
@@ -115167,7 +115177,7 @@ const ISe = 15 * 60 * 1e3, p9 = async (r) => {
                 type: "text",
                 value: i,
                 onChange: (v) => s(v.target.value),
-                placeholder: "Posez votre question...",
+                placeholder: "Ask your question...",
                 disabled: a,
                 style: {
                   flex: 1,
