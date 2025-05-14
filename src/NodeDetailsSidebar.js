@@ -63,6 +63,26 @@ const NodeDetailsSidebar = ({ triple, endpoint, onClose }) => {
   return (
     <div className="node-details-sidebar">
       <h2>{triple.label || "No Label"} Details</h2>
+      {atomDetails && atomDetails.image && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "16px 0",
+          }}
+        >
+          <img
+            src={atomDetails.image}
+            alt={atomDetails.label || "Node image"}
+            style={{
+              maxWidth: 80,
+              maxHeight: 80,
+              borderRadius: "50%",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+            }}
+          />
+        </div>
+      )}
       {loading && <p>Loading...</p>}
       {error && <p>{error}</p>}
 
@@ -77,9 +97,6 @@ const NodeDetailsSidebar = ({ triple, endpoint, onClose }) => {
           </p>
           <p>
             <strong>Type:</strong> {atomDetails.type}
-          </p>
-          <p>
-            <strong>Emoji:</strong> {atomDetails.emoji || "N/A"}
           </p>
           <p>
             <strong>Creator:</strong> {atomDetails.creator?.label || "Unknown"}

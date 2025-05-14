@@ -57,18 +57,21 @@ export const fetchTriples = async (endpoint = "baseSepolia") => {
           id
           creator_id
           type
+          image
         }
         predicate {
           label
           id
           creator_id
           type
+          image
         }
         object {
           label
           id
           creator_id
           type
+          image
         }
       }
     }
@@ -93,18 +96,21 @@ export const fetchTriplesForNode = async (nodeId, endpoint = "baseSepolia") => {
           id
           creator_id
           type
+          image
         }
         predicate {
           label
           id
           creator_id
           type
+          image
         }
         object {
           label
           id
           creator_id
           type
+          image
         }
       }
     }
@@ -146,18 +152,21 @@ export const searchTriples = async (filters, endpoint = "baseSepolia") => {
           id
           creator_id
           type
+          image
         }
         predicate {
           label
           id
           creator_id
           type
+          image
         }
         object {
           label
           id
           creator_id
           type
+          image
         }
       }
     }

@@ -14,6 +14,7 @@ export const useGraphState = (endpoint) => {
 
   // Filtres
   const [subjectFilter, setSubjectFilter] = useState("");
+  const [predicateFilter, setPredicateFilter] = useState("");
   const [objectFilter, setObjectFilter] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [shouldSearch, setShouldSearch] = useState(false);
@@ -36,6 +37,7 @@ export const useGraphState = (endpoint) => {
     setGraphData(initialGraphData);
     setSelectedTriple(null);
     setSubjectFilter("");
+    setPredicateFilter("");
     setObjectFilter("");
     setShouldSearch(false);
   }, [initialGraphData]);
@@ -94,6 +96,9 @@ export const useGraphState = (endpoint) => {
       case "subject":
         setSubjectFilter(value);
         break;
+      case "predicate":
+        setPredicateFilter(value);
+        break;
       case "object":
         setObjectFilter(value);
         break;
@@ -109,7 +114,7 @@ export const useGraphState = (endpoint) => {
   const applyFilters = useCallback(async () => {
     if (!shouldSearch) return;
 
-    if (!subjectFilter && !objectFilter) {
+    if (!subjectFilter && !predicateFilter && !objectFilter) {
       resetGraph();
       return;
     }
@@ -118,6 +123,7 @@ export const useGraphState = (endpoint) => {
     try {
       const filters = {
         subject: subjectFilter,
+        predicate: predicateFilter,
         object: objectFilter,
       };
 
@@ -145,6 +151,7 @@ export const useGraphState = (endpoint) => {
     }
   }, [
     subjectFilter,
+    predicateFilter,
     objectFilter,
     endpoint,
     resetGraph,
@@ -180,6 +187,7 @@ export const useGraphState = (endpoint) => {
     isLoading,
     isSearching,
     subjectFilter,
+    predicateFilter,
     objectFilter,
     shouldSearch,
     canGoBack: currentHistoryIndex > 0,

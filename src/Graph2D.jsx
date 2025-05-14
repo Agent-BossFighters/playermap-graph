@@ -2,48 +2,11 @@ import React, { useRef, useState } from "react";
 import { ForceGraph2D } from "react-force-graph";
 import { NODE_COLORS } from "./nodeColors";
 
-const tooltipStyle = {
-  position: "absolute",
-  pointerEvents: "none",
-  background: NODE_COLORS.PREDICATE,
-  color: "#fff",
-  border: `2px solid ${NODE_COLORS.PREDICATE}`,
-  borderRadius: 8,
-  padding: "6px 14px",
-  fontSize: 15,
-  fontWeight: "bold",
-  zIndex: 10000,
-  boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-  whiteSpace: "nowrap",
-  maxWidth: 260,
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
-
-const TOOLTIP_OFFSET_X = 16;
-const TOOLTIP_OFFSET_Y = 32;
-
 const Graph2D = ({ graphData, onNodeClick, onEngineStop, fgRef }) => {
   const containerRef = useRef();
-  const [hoveredLink, setHoveredLink] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  // Ajuste la position du tooltip pour qu'il reste dans le conteneur
-  const getTooltipPosition = () => {
-    if (!containerRef.current) return { left: mousePos.x, top: mousePos.y };
-    const bounds = containerRef.current.getBoundingClientRect();
-    const tooltipWidth = 180; // Largeur max estimée du tooltip
-    const tooltipHeight = 36; // Hauteur estimée du tooltip
-    let left = mousePos.x + TOOLTIP_OFFSET_X;
-    let top = mousePos.y - TOOLTIP_OFFSET_Y;
-    if (left + tooltipWidth > bounds.width)
-      left = bounds.width - tooltipWidth - 8;
-    if (left < 0) left = 8;
-    if (top < 0) top = mousePos.y + TOOLTIP_OFFSET_Y;
-    if (top + tooltipHeight > bounds.height)
-      top = bounds.height - tooltipHeight - 8;
-    return { left, top };
-  };
+  const [hoveredLink, setHoveredLink] = useState(null);
+  const [hoveredNode, setHoveredNode] = useState(null);
 
   return (
     <div
@@ -63,63 +26,129 @@ const Graph2D = ({ graphData, onNodeClick, onEngineStop, fgRef }) => {
         ref={fgRef}
         graphData={graphData}
         nodeCanvasObject={(node, ctx, globalScale) => {
-          const label = node.label || "";
-          const fontSize = 12 / globalScale;
-          ctx.font = `${fontSize}px Sans-Serif`;
-
-          const textWidth = ctx.measureText(label).width;
-          const padding = 10 / globalScale;
-          const radius = 5 / globalScale;
-
-          ctx.fillStyle = node.color + "CC";
-          const x = node.x - textWidth / 2 - padding;
-          const y = node.y - fontSize / 2 - padding;
-          const width = textWidth + padding * 2;
-          const height = fontSize + padding * 2;
-          const bckgDimensions = [width, height];
-
-          ctx.beginPath();
-          ctx.arc(x + radius, y + radius, radius, Math.PI, 1.5 * Math.PI);
-          ctx.arc(
-            x + width - radius,
-            y + radius,
-            radius,
-            1.5 * Math.PI,
-            2 * Math.PI
-          );
-          ctx.arc(
-            x + width - radius,
-            y + height - radius,
-            radius,
-            0,
-            0.5 * Math.PI
-          );
-          ctx.arc(
-            x + radius,
-            y + height - radius,
-            radius,
-            0.5 * Math.PI,
-            Math.PI
-          );
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.fillStyle = "#fff";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(label, node.x, node.y);
-
-          node.__bckgDimensions = bckgDimensions;
+          const size = (44 / globalScale) * Math.pow(globalScale, 0.15);
+          if (node.type === "object") {
+            if (node.image) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.rect(node.x - size / 2, node.y - size / 2, size, size);
+              ctx.closePath();
+              ctx.strokeStyle = node.color;
+              ctx.lineWidth = 3 / globalScale;
+              ctx.stroke();
+              ctx.clip();
+              if (!node.__img) {
+                const img = new window.Image();
+                img.src = node.image;
+                img.onload = () => {
+                  node.__imgLoaded = true;
+                  if (fgRef && fgRef.current && fgRef.current.emit)
+                    fgRef.current.emit("redraw");
+                };
+                node.__img = img;
+                node.__imgLoaded = false;
+              }
+              if (node.__imgLoaded) {
+                ctx.drawImage(
+                  node.__img,
+                  node.x - size / 2,
+                  node.y - size / 2,
+                  size,
+                  size
+                );
+              } else {
+                ctx.fillStyle = node.color || "#888";
+                ctx.fillRect(node.x - size / 2, node.y - size / 2, size, size);
+              }
+              ctx.restore();
+            } else {
+              ctx.save();
+              ctx.beginPath();
+              ctx.rect(node.x - size / 2, node.y - size / 2, size, size);
+              ctx.closePath();
+              ctx.fillStyle = node.color + "CC";
+              ctx.fill();
+              ctx.strokeStyle = node.color;
+              ctx.lineWidth = 3 / globalScale;
+              ctx.stroke();
+              const letter = (node.label || "?").charAt(0).toUpperCase();
+              const fontSize = 20 / globalScale;
+              ctx.font = `bold ${fontSize}px Sans-Serif`;
+              ctx.fillStyle = "#fff";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(letter, node.x, node.y + size * 0.04);
+              ctx.restore();
+            }
+          } else {
+            if (node.image) {
+              if (!node.__img) {
+                const img = new window.Image();
+                img.src = node.image;
+                img.onload = () => {
+                  node.__imgLoaded = true;
+                  if (fgRef && fgRef.current && fgRef.current.emit)
+                    fgRef.current.emit("redraw");
+                };
+                node.__img = img;
+                node.__imgLoaded = false;
+              }
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, size / 2, 0, 2 * Math.PI, false);
+              ctx.closePath();
+              ctx.lineWidth = 3 / globalScale;
+              ctx.strokeStyle = node.color;
+              ctx.stroke();
+              ctx.clip();
+              if (node.__imgLoaded) {
+                ctx.drawImage(
+                  node.__img,
+                  node.x - size / 2,
+                  node.y - size / 2,
+                  size,
+                  size
+                );
+              } else {
+                ctx.fillStyle = node.color || "#888";
+                ctx.fill();
+              }
+              ctx.restore();
+            } else {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, size / 2, 0, 2 * Math.PI, false);
+              ctx.closePath();
+              ctx.fillStyle = node.color + "CC";
+              ctx.fill();
+              ctx.strokeStyle = node.color;
+              ctx.lineWidth = 3 / globalScale;
+              ctx.stroke();
+              const letter = (node.label || "?").charAt(0).toUpperCase();
+              const fontSize = 20 / globalScale;
+              ctx.font = `bold ${fontSize}px Sans-Serif`;
+              ctx.fillStyle = "#fff";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(letter, node.x, node.y + size * 0.04);
+              ctx.restore();
+            }
+          }
         }}
-        nodePointerAreaPaint={(node, color, ctx) => {
+        nodePointerAreaPaint={(node, color, ctx, globalScale) => {
+          const size = (44 / globalScale) * Math.pow(globalScale, 0.15);
           ctx.fillStyle = color;
-          const bckgDimensions = node.__bckgDimensions;
-          bckgDimensions &&
-            ctx.fillRect(
-              node.x - bckgDimensions[0] / 2,
-              node.y - bckgDimensions[1] / 2,
-              ...bckgDimensions
-            );
+          if (node.type === "object") {
+            ctx.beginPath();
+            ctx.rect(node.x - size / 2, node.y - size / 2, size, size);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, size / 2, 0, 2 * Math.PI, false);
+            ctx.closePath();
+            ctx.fill();
+          }
         }}
         linkColor={() => "rgba(255, 211, 42, 0.15)"}
         linkDirectionalParticles={1}
@@ -128,21 +157,66 @@ const Graph2D = ({ graphData, onNodeClick, onEngineStop, fgRef }) => {
         nodeAutoColorBy="type"
         onNodeClick={onNodeClick}
         onEngineStop={onEngineStop}
+        onNodeHover={setHoveredNode}
         onLinkHover={setHoveredLink}
-        onBackgroundClick={() => setHoveredLink(null)}
-        onZoom={() => setHoveredLink(null)}
+        onBackgroundClick={() => {
+          setHoveredLink(null);
+          setHoveredNode(null);
+        }}
+        onZoom={() => {
+          setHoveredLink(null);
+          setHoveredNode(null);
+        }}
       />
-      {hoveredLink && hoveredLink.label && (
+      {hoveredLink && hoveredLink.label ? (
         <div
           style={{
-            ...tooltipStyle,
-            ...getTooltipPosition(),
+            position: "absolute",
+            left: mousePos.x + 18,
+            top: mousePos.y - 10,
+            background: NODE_COLORS.PREDICATE,
+            color: "#fff",
+            border: `1.5px solid ${NODE_COLORS.PREDICATE}`,
+            borderRadius: 8,
+            padding: "6px 14px",
+            fontSize: 15,
+            fontWeight: "bold",
+            zIndex: 10001,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
             pointerEvents: "none",
+            whiteSpace: "nowrap",
+            maxWidth: 260,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
           }}
         >
           {hoveredLink.label}
         </div>
-      )}
+      ) : hoveredNode && hoveredNode.label ? (
+        <div
+          style={{
+            position: "absolute",
+            left: mousePos.x + 18,
+            top: mousePos.y - 10,
+            background: "#232326",
+            color: "#fff",
+            border: "1.5px solid #ffd32a",
+            borderRadius: 8,
+            padding: "6px 14px",
+            fontSize: 15,
+            fontWeight: "bold",
+            zIndex: 10001,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+            pointerEvents: "none",
+            whiteSpace: "nowrap",
+            maxWidth: 260,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {hoveredNode.label}
+        </div>
+      ) : null}
     </div>
   );
 };

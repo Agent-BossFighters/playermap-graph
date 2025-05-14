@@ -5,16 +5,27 @@ const GraphVR = ({ graphData, onNodeClick }) => {
   const graphRef = useRef();
 
   useEffect(() => {
-    if (graphRef.current) {
+    // Attendre que le DOM soit chargé
+    if (typeof window !== "undefined" && !window.AFRAME) {
+      // Importer A-Frame dynamiquement
+      import("aframe").then(() => {
+        if (graphRef.current) {
+          const graph = ForceGraphVR()(graphRef.current);
+          graph.graphData(graphData);
+          graph.nodeLabel((node) => node.label || node.id);
+          graph.nodeAutoColorBy("group");
+
+          if (onNodeClick) {
+            graph.onNodeClick(onNodeClick);
+          }
+        }
+      });
+    } else if (graphRef.current) {
       const graph = ForceGraphVR()(graphRef.current);
-
       graph.graphData(graphData);
+      graph.nodeLabel((node) => node.label || node.id);
+      graph.nodeAutoColorBy("group");
 
-      graph
-        .nodeLabel((node) => node.label || node.id)
-        .nodeAutoColorBy("group");
-
-      // Attach click handler if provided
       if (onNodeClick) {
         graph.onNodeClick(onNodeClick);
       }

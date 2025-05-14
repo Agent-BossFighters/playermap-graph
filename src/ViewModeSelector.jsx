@@ -1,9 +1,6 @@
 import React from "react";
 
-const ViewModeSelector = ({
-  viewMode,
-  onViewModeChange,
-}) => {
+const ViewModeSelector = ({ viewMode, onViewModeChange }) => {
   return (
     <div
       className="agent-navbar"

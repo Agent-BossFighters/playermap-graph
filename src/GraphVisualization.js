@@ -34,6 +34,7 @@ const GraphVisualization = ({ endpoint }) => {
     isLoading,
     isSearching,
     subjectFilter,
+    predicateFilter,
     objectFilter,
     shouldSearch,
     canGoBack,
@@ -113,22 +114,28 @@ const GraphVisualization = ({ endpoint }) => {
               background: "#ffd32a",
               color: "#18181b",
               border: "none",
-              borderRadius: 12,
-              width: 120,
-              height: 40,
-              fontSize: 15,
-              fontWeight: "bold",
+              borderRadius: 14,
+              width: 150,
+              height: 48,
+              fontSize: 17,
+              fontWeight: "bolder",
               boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
               cursor: "pointer",
               textTransform: "uppercase",
               marginLeft: 12,
               transition: "background 0.2s, color 0.2s, transform 0.1s",
+              padding: "0 16px",
+              letterSpacing: 1.1,
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#ffe066")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "#ffd32a")}
             onClick={() => setFiltersOpen((open) => !open)}
           >
-            Filters
+            <span
+              style={{ fontWeight: "bolder", fontSize: 18, letterSpacing: 1.2 }}
+            >
+              Filters
+            </span>
           </button>
         )}
         {filtersOpen && (
@@ -179,6 +186,7 @@ const GraphVisualization = ({ endpoint }) => {
               </button>
               <FilterBar
                 subjectFilter={subjectFilter}
+                predicateFilter={predicateFilter}
                 objectFilter={objectFilter}
                 onFilterChange={handleFilterChange}
                 onReset={resetGraph}
@@ -236,15 +244,28 @@ const GraphVisualization = ({ endpoint }) => {
             background: "#ffd32a",
             color: "#18181b",
             border: "none",
-            borderRadius: 8,
-            padding: "10px 18px",
-            fontWeight: "bold",
-            marginTop: 20,
+            borderRadius: 14,
+            width: 150,
+            height: 48,
+            fontSize: 17,
+            fontWeight: "bolder",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
             cursor: "pointer",
+            textTransform: "uppercase",
+            transition: "background 0.2s, color 0.2s, transform 0.1s",
+            padding: "0 16px",
+            letterSpacing: 1.1,
+            marginTop: 20,
           }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#ffe066")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#ffd32a")}
           onClick={() => setSidebarOpen(false)}
         >
-          Fermer
+          <span
+            style={{ fontWeight: "bolder", fontSize: 18, letterSpacing: 1.2 }}
+          >
+            Close
+          </span>
         </button>
       </SidebarDrawer>
 

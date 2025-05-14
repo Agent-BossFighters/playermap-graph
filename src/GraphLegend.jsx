@@ -36,28 +36,28 @@ const GraphLegend = () => {
             style={{
               width: "15px",
               height: "15px",
-              backgroundColor: NODE_COLORS.PREDICATE,
-              borderRadius: "50%",
+              backgroundColor: NODE_COLORS.OBJECT,
+              borderRadius: "2px",
               display: "inline-block",
               marginRight: "10px",
             }}
           ></span>
-          Predicate
+          Object
         </li>
         <li
           style={{ display: "flex", alignItems: "center", marginBottom: "5px" }}
         >
           <span
             style={{
-              width: "15px",
-              height: "15px",
-              backgroundColor: NODE_COLORS.OBJECT,
-              borderRadius: "50%",
+              width: "22px",
+              height: "10px",
+              backgroundColor: NODE_COLORS.PREDICATE,
+              borderRadius: "3px",
               display: "inline-block",
               marginRight: "10px",
             }}
           ></span>
-          Object
+          Predicate
         </li>
       </ul>
     </div>
