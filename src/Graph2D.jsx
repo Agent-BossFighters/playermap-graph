@@ -24,14 +24,14 @@ const tooltipStyle = {
 const TOOLTIP_OFFSET_X = 16;
 const TOOLTIP_OFFSET_Y = 32;
 
-const Graph2D = ({ 
-  graphData, 
-  onNodeClick, 
-  onEngineStop, 
-  fgRef, 
-  tabs, 
-  activeTab, 
-  onTabChange, 
+const Graph2D = ({
+  graphData,
+  onNodeClick,
+  onEngineStop,
+  fgRef,
+  tabs,
+  activeTab,
+  onTabChange,
   children,
   drawerOpen,
   drawerContent,
@@ -44,6 +44,7 @@ const Graph2D = ({
 }) => {
   const containerRef = useRef();
   const [hoveredLink, setHoveredLink] = useState(null);
+  const [hoveredNode, setHoveredNode] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [dimensions, setDimensions] = useState({ width: 100, height: 100 });
 
@@ -53,19 +54,19 @@ const Graph2D = ({
       if (containerRef.current) {
         setDimensions({
           width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight
+          height: containerRef.current.clientHeight,
         });
       }
     };
 
     // Mettre à jour les dimensions initiales
     updateDimensions();
-    
+
     // Ajouter un écouteur d'événement pour le redimensionnement
-    window.addEventListener('resize', updateDimensions);
-    
+    window.addEventListener("resize", updateDimensions);
+
     // Nettoyer l'écouteur d'événement lors du démontage
-    return () => window.removeEventListener('resize', updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
   // Ajuste la position du tooltip pour qu'il reste dans le conteneur
@@ -88,11 +89,11 @@ const Graph2D = ({
   return (
     <div
       ref={containerRef}
-      style={{ 
+      style={{
         position: "relative",
-        width: "100%", 
+        width: "100%",
         height: "100%",
-        overflow: "hidden"
+        overflow: "hidden",
       }}
       onMouseMove={(e) => {
         if (containerRef.current) {
@@ -110,84 +111,150 @@ const Graph2D = ({
         width={dimensions.width}
         height={dimensions.height}
         nodeCanvasObject={(node, ctx, globalScale) => {
-          const label = node.label || "";
-          const fontSize = 12 / globalScale;
-          ctx.font = `${fontSize}px Sans-Serif`;
-
-          const textWidth = ctx.measureText(label).width;
-          const padding = 10 / globalScale;
-          const radius = 5 / globalScale;
-
-          ctx.fillStyle = node.color + "CC";
-          const x = node.x - textWidth / 2 - padding;
-          const y = node.y - fontSize / 2 - padding;
-          const width = textWidth + padding * 2;
-          const height = fontSize + padding * 2;
-          const bckgDimensions = [width, height];
-
-          ctx.beginPath();
-          ctx.arc(x + radius, y + radius, radius, Math.PI, 1.5 * Math.PI);
-          ctx.arc(
-            x + width - radius,
-            y + radius,
-            radius,
-            1.5 * Math.PI,
-            2 * Math.PI
-          );
-          ctx.arc(
-            x + width - radius,
-            y + height - radius,
-            radius,
-            0,
-            0.5 * Math.PI
-          );
-          ctx.arc(
-            x + radius,
-            y + height - radius,
-            radius,
-            0.5 * Math.PI,
-            Math.PI
-          );
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.fillStyle = "#fff";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(label, node.x, node.y);
-
-          node.__bckgDimensions = bckgDimensions;
+          const size = (44 / globalScale) * Math.pow(globalScale, 0.15);
+          if (node.type === "object") {
+            if (node.image) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.rect(node.x - size / 2, node.y - size / 2, size, size);
+              ctx.closePath();
+              ctx.strokeStyle = node.color;
+              ctx.lineWidth = 3 / globalScale;
+              ctx.stroke();
+              ctx.clip();
+              if (!node.__img) {
+                const img = new window.Image();
+                img.src = node.image;
+                img.onload = () => {
+                  node.__imgLoaded = true;
+                  if (fgRef && fgRef.current && fgRef.current.emit)
+                    fgRef.current.emit("redraw");
+                };
+                node.__img = img;
+                node.__imgLoaded = false;
+              }
+              if (node.__imgLoaded) {
+                ctx.drawImage(
+                  node.__img,
+                  node.x - size / 2,
+                  node.y - size / 2,
+                  size,
+                  size
+                );
+              } else {
+                ctx.fillStyle = node.color || "#888";
+                ctx.fillRect(node.x - size / 2, node.y - size / 2, size, size);
+              }
+              ctx.restore();
+            } else {
+              ctx.save();
+              ctx.beginPath();
+              ctx.rect(node.x - size / 2, node.y - size / 2, size, size);
+              ctx.closePath();
+              ctx.fillStyle = node.color + "CC";
+              ctx.fill();
+              ctx.strokeStyle = node.color;
+              ctx.lineWidth = 3 / globalScale;
+              ctx.stroke();
+              const letter = (node.label || "?").charAt(0).toUpperCase();
+              const fontSize = 20 / globalScale;
+              ctx.font = `bold ${fontSize}px Sans-Serif`;
+              ctx.fillStyle = "#fff";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(letter, node.x, node.y + size * 0.04);
+              ctx.restore();
+            }
+          } else {
+            if (node.image) {
+              if (!node.__img) {
+                const img = new window.Image();
+                img.src = node.image;
+                img.onload = () => {
+                  node.__imgLoaded = true;
+                  if (fgRef && fgRef.current && fgRef.current.emit)
+                    fgRef.current.emit("redraw");
+                };
+                node.__img = img;
+                node.__imgLoaded = false;
+              }
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, size / 2, 0, 2 * Math.PI, false);
+              ctx.closePath();
+              ctx.lineWidth = 3 / globalScale;
+              ctx.strokeStyle = node.color;
+              ctx.stroke();
+              ctx.clip();
+              if (node.__imgLoaded) {
+                ctx.drawImage(
+                  node.__img,
+                  node.x - size / 2,
+                  node.y - size / 2,
+                  size,
+                  size
+                );
+              } else {
+                ctx.fillStyle = node.color || "#888";
+                ctx.fill();
+              }
+              ctx.restore();
+            } else {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, size / 2, 0, 2 * Math.PI, false);
+              ctx.closePath();
+              ctx.fillStyle = node.color + "CC";
+              ctx.fill();
+              ctx.strokeStyle = node.color;
+              ctx.lineWidth = 3 / globalScale;
+              ctx.stroke();
+              const letter = (node.label || "?").charAt(0).toUpperCase();
+              const fontSize = 20 / globalScale;
+              ctx.font = `bold ${fontSize}px Sans-Serif`;
+              ctx.fillStyle = "#fff";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(letter, node.x, node.y + size * 0.04);
+              ctx.restore();
+            }
+          }
         }}
-        nodePointerAreaPaint={(node, color, ctx) => {
+        nodePointerAreaPaint={(node, color, ctx, globalScale) => {
+          const size = (44 / globalScale) * Math.pow(globalScale, 0.15);
           ctx.fillStyle = color;
-          const bckgDimensions = node.__bckgDimensions;
-          bckgDimensions &&
-            ctx.fillRect(
-              node.x - bckgDimensions[0] / 2,
-              node.y - bckgDimensions[1] / 2,
-              ...bckgDimensions
-            );
+          if (node.type === "object") {
+            ctx.beginPath();
+            ctx.rect(node.x - size / 2, node.y - size / 2, size, size);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, size / 2, 0, 2 * Math.PI, false);
+            ctx.closePath();
+            ctx.fill();
+          }
         }}
         linkColor={() => "rgba(255, 211, 42, 0.15)"}
         linkDirectionalParticles={1}
         linkDirectionalParticleSpeed={0.01}
         linkDirectionalParticleColor={() => "rgba(255,255,255,0.5)"}
         nodeAutoColorBy="type"
-        onNodeClick={(node) => {
-          console.log("Node clicked inside Graph2D:", node);
-          onNodeClick && onNodeClick(node);
-        }}
+        onNodeClick={onNodeClick}
         onEngineStop={onEngineStop}
+        onNodeHover={setHoveredNode}
         onLinkHover={setHoveredLink}
         onBackgroundClick={() => {
           setHoveredLink(null);
-          // Ne pas désélectionner le nœud lors d'un clic sur l'arrière-plan
-          // car cela pourrait masquer le NodeDetailsSidebar
+          setHoveredNode(null);
         }}
-        onZoom={() => setHoveredLink(null)}
+        onZoom={() => {
+          setHoveredLink(null);
+          setHoveredNode(null);
+        }}
       />
-      
-      {hoveredLink && hoveredLink.label && (
+
+      {hoveredLink && hoveredLink.label ? (
         <div
           style={{
             ...tooltipStyle,
@@ -197,23 +264,49 @@ const Graph2D = ({
         >
           {hoveredLink.label}
         </div>
-      )}
-      
+      ) : hoveredNode && hoveredNode.label ? (
+        <div
+          style={{
+            position: "absolute",
+            left: mousePos.x + 18,
+            top: mousePos.y - 10,
+            background: "#232326",
+            color: "#fff",
+            border: "1.5px solid #ffd32a",
+            borderRadius: 8,
+            padding: "6px 14px",
+            fontSize: 15,
+            fontWeight: "bold",
+            zIndex: 10001,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+            pointerEvents: "none",
+            whiteSpace: "nowrap",
+            maxWidth: 260,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {hoveredNode.label}
+        </div>
+      ) : null}
+
       {/* Afficher le NodeDetailsSidebar comme dans GraphVR */}
       {selectedTriple && (
-        <div style={{ 
-          position: "absolute", 
-          top: 80, 
-          right: 30, 
-          width: 350,
-          zIndex: 9999,
-          maxHeight: "80vh",
-          background: "#18181b",
-          borderRadius: "10px",
-          border: "3px solid #ffd32a",
-          boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5)",
-          overflowY: "auto"
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            top: 80,
+            right: 30,
+            width: 350,
+            zIndex: 9999,
+            maxHeight: "80vh",
+            background: "#18181b",
+            borderRadius: "10px",
+            border: "3px solid #ffd32a",
+            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5)",
+            overflowY: "auto",
+          }}
+        >
           <NodeDetailsSidebar
             triple={selectedTriple}
             endpoint={endpoint}
@@ -221,7 +314,7 @@ const Graph2D = ({
           />
         </div>
       )}
-      
+
       {/* Affichage de la barre de navigation en bas comme surcouche */}
       {tabs && (
         <div
@@ -276,7 +369,7 @@ const Graph2D = ({
           ))}
         </div>
       )}
-      
+
       {/* Rendu du Drawer du bas */}
       <div
         style={{
@@ -327,7 +420,7 @@ const Graph2D = ({
           </>
         )}
       </div>
-      
+
       {/* Rendu du SidebarDrawer */}
       <div
         style={{
@@ -393,11 +486,9 @@ const Graph2D = ({
           onClick={drawerOpen ? onDrawerClose : onSidebarClose}
         />
       )}
-      
+
       {/* Rendu de tout contenu enfant comme surcouche */}
-      <div style={{ position: "relative", zIndex: 2000 }}>
-        {children}
-      </div>
+      <div style={{ position: "relative", zIndex: 2000 }}>{children}</div>
     </div>
   );
 };
