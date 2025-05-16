@@ -25,10 +25,9 @@ import { transformToGraphData } from "./graphData";
 //*import ChatBox from "./components/ChatBox"; //*
 import FollowersCard from "./components/FollowersCard";
 
-const ACCOUNT_ID = "0xddfff342ce2547338b0f689aa3ec86893340fbdf";
-const AGENT_OBJECT_ID = 24537; // À remplacer par l'ID réel de l'agent
 
-const GraphVisualization = ({ endpoint, walletAddress }) => {
+const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingChange }) => {
+  const ACCOUNT_ID = walletAddress.toLowerCase();
   const fgRef = useRef();
   const containerRef = useRef();
   const [viewMode, setViewMode] = React.useState("2D");
@@ -98,29 +97,30 @@ const GraphVisualization = ({ endpoint, walletAddress }) => {
     }
   };
 
+
   React.useEffect(() => {
     if (drawerOpen && activeTab === "claims") {
       fetchClaimsByAccount(ACCOUNT_ID, endpoint).then(setClaims);
     }
-  }, [drawerOpen, activeTab, endpoint]);
+  }, [drawerOpen, activeTab, endpoint, ACCOUNT_ID]);
 
   React.useEffect(() => {
     if (drawerOpen && activeTab === "positions") {
       fetchPositionsByAccount(ACCOUNT_ID, endpoint).then(setPositions);
     }
-  }, [drawerOpen, activeTab, endpoint]);
+  }, [drawerOpen, activeTab, endpoint, ACCOUNT_ID]);
 
   React.useEffect(() => {
     if (drawerOpen && activeTab === "activity") {
       fetchPositionsByAccount(ACCOUNT_ID, endpoint).then(setActivities);
     }
-  }, [drawerOpen, activeTab, endpoint]);
+  }, [drawerOpen, activeTab, endpoint, ACCOUNT_ID]);
 
   React.useEffect(() => {
     if (drawerOpen && activeTab === "connections") {
       fetchFollowsAndFollowers(4, ACCOUNT_ID, endpoint).then(setConnections);
     }
-  }, [drawerOpen, activeTab, endpoint]);
+  }, [drawerOpen, activeTab, endpoint, ACCOUNT_ID]);
 
   const handleSearch = async (query, filters) => {
     try {

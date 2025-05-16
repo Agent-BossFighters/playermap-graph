@@ -5,7 +5,7 @@ import GraphVisualization from "./GraphVisualization";
 
 function App() {
   // Endpoint fixé à 'baseSepolia' (testnet)
-  const endpoint = "baseSepolia";
+  const endpoint = "base";
 
   return (
     <div className="App">

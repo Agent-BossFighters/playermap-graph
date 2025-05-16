@@ -3,7 +3,7 @@ import { fetchTriples, fetchTriplesForNode, searchTriples, fetchTriplesForAgent 
 import { transformToGraphData } from "../graphData";
 
 // ID de l'objet agent
-const AGENT_OBJECT_ID = 24537; // À remplacer par l'ID réel de l'agent
+const AGENT_OBJECT_ID = 32890; // À remplacer par l'ID réel du jeu BOSSFIGHTERS
 
 export const useGraphState = (endpoint, graphType = "base") => {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });

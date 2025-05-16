@@ -6,6 +6,10 @@ export const ENDPOINTS = {
     url: "https://dev.base-sepolia.intuition-api.com/v1/graphql",
     displayName: "Base Testnet",
   },
+  base: {
+    url: " https://prod.base.intuition-api.com/v1/graphql",
+    displayName: "Base Mainnet",
+  },
 };
 
 // Create GraphQL client based on endpoint
@@ -14,7 +18,7 @@ export const createClient = (endpoint) => {
 };
 
 // Fetch Atom Details
-export const fetchAtomDetails = async (atomId, endpoint = "baseSepolia") => {
+export const fetchAtomDetails = async (atomId, endpoint = "base") => {
   const client = createClient(endpoint);
   let query;
   query = gql`
@@ -45,7 +49,7 @@ export const fetchAtomDetails = async (atomId, endpoint = "baseSepolia") => {
 };
 
 // Fetch Triples Details
-export const fetchTriples = async (endpoint = "baseSepolia") => {
+export const fetchTriples = async (endpoint = "base") => {
   const client = createClient(endpoint);
   let query, data;
   query = gql`
@@ -83,7 +87,7 @@ export const fetchTriples = async (endpoint = "baseSepolia") => {
 };
 
 // Fetch Embedded triples Details
-export const fetchTriplesForNode = async (nodeId, endpoint = "baseSepolia") => {
+export const fetchTriplesForNode = async (nodeId, endpoint = "base") => {
   const client = createClient(endpoint);
   let query, data, variables;
   query = gql`
@@ -139,7 +143,7 @@ export const fetchTriplesForNode = async (nodeId, endpoint = "baseSepolia") => {
 };
 
 // Search Triples
-export const searchTriples = async (filters, endpoint = "baseSepolia") => {
+export const searchTriples = async (filters, endpoint = "base") => {
   const client = createClient(endpoint);
   const query = gql`
     query SearchTriples($where: triples_bool_exp) {
@@ -219,7 +223,7 @@ export const searchTriples = async (filters, endpoint = "baseSepolia") => {
 // Fetch Claims by Account
 export const fetchClaimsByAccount = async (
   accountId,
-  endpoint = "baseSepolia"
+  endpoint = "base"
 ) => {
   const client = createClient(endpoint);
   const query = gql`
@@ -260,7 +264,7 @@ export const fetchClaimsByAccount = async (
 // Fetch Triples (Positions) by Creator
 export const fetchTriplesByCreator = async (
   creatorId,
-  endpoint = "baseSepolia"
+  endpoint = "base"
 ) => {
   const client = createClient(endpoint);
   const query = gql`
@@ -290,7 +294,7 @@ export const fetchTriplesByCreator = async (
 // Fetch Triples filtered for Agent view
 export const fetchTriplesForAgent = async (
   objectId,
-  endpoint = "baseSepolia",
+  endpoint = "base",
   batchSize = 1000
 ) => {
   const client = createClient(endpoint);
@@ -414,7 +418,7 @@ export const fetchTriplesForAgent = async (
 // Fetch Positions by Account
 export const fetchPositionsByAccount = async (
   accountId,
-  endpoint = "baseSepolia"
+  endpoint = "base"
 ) => {
   const client = createClient(endpoint);
   const query = gql`
@@ -561,11 +565,11 @@ export const fetchPositionsByAccount = async (
 export const fetchFollowsAndFollowers = async (
   predicateId,
   accountId,
-  endpoint = "baseSepolia"
+  endpoint = "base"
 ) => {
   const client = createClient(endpoint);
   const query = gql`
-    query GetFollowsAndFollowers($predicateId: numeric!, $accountId: numeric!) {
+    query GetFollowsAndFollowers($predicateId: numeric!, $accountId: String!) {
       follows: triples(
         where: {
           _and: [
