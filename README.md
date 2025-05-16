@@ -26,9 +26,15 @@ A React library for visualizing player graphs with 2D, 3D, and VR capabilities.
 
 ## Installation
 
+```
+npm install playermap_graph
+```
+
+## For local usage
+
 ```bash
 npm install
-npm start
+npm run build:lib
 ```
 
 ## Configuration
