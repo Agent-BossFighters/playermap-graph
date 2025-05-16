@@ -1,17 +1,28 @@
 # PlayerMap Graph
 
-Une librairie React pour visualiser des graphes de joueurs avec des fonctionnalités 2D et VR.
+A React library for visualizing player graphs with 2D, 3D, and VR capabilities.
 
-## Fonctionnalités
+## Features
 
-- Visualisation de graphe 2D/3D avec force-directed layout
-- Exploration de graphe (clic sur les nœuds pour voir ses relations)
-- Filtrage des données
-- Vue détaillée des nœuds sélectionnés
-- Historique de navigation (retour arrière/avant)
-- Types de graphiques sélectionnables :
-  - **Base** : graphique par défaut montrant toutes les relations
-  - **Agent** : graphique filtré centré sur les agents et leurs relations spécifiques
+### Visualization Modes
+- **2D**: Classic two-dimensional visualization with force-directed layout
+- **3D**: Immersive three-dimensional visualization
+- **VR**: Virtual reality mode for a fully immersive experience
+
+### Core Features
+- Interactive graph exploration (click on nodes to view their relationships)
+- Smart data filtering
+- Detailed view of selected nodes
+- Navigation history (back/forward)
+- Interactive legend for node type identification
+
+### Advanced Features
+- Smart data filtering with subject/predicate/object search
+- Detailed node view with comprehensive information
+- Claims and positions management
+- Connection tracking (follows/followers)
+- Activity history
+- Multi-endpoint support (Base Mainnet, Base Testnet, Playground API)
 
 ## Installation
 
@@ -22,11 +33,18 @@ npm start
 
 ## Configuration
 
-Pour changer l'ID de l'objet Agent utilisé pour la visualisation du graphe Agent, modifiez la constante `AGENT_OBJECT_ID` dans les fichiers:
+### Endpoints
+The library supports multiple endpoints configured in `src/api.js`:
+- Base Mainnet
+- Base Testnet
+- Playground API (OffChain)
+
+### Agent Graph Configuration
+To customize the Agent graph visualization, modify the `AGENT_OBJECT_ID` constant in:
 - `src/hooks/useGraphState.js`
 - `src/GraphVisualization.jsx`
 
-## Utilisation
+## Usage
 
 ```jsx
 import {
@@ -38,33 +56,65 @@ import {
 function App() {
   return (
     <div>
-      {/* Visualisation 2D */}
-      <GraphVisualization />
+      {/* 2D Visualization */}
+      <GraphVisualization 
+        endpoint="baseSepolia"
+        walletAddress="0x..."
+        onNodeSelect={(node) => console.log(node)}
+        onLoadingChange={(loading) => console.log(loading)}
+      />
 
-      {/* Visualisation VR */}
+      {/* VR Visualization */}
       <GraphVR />
 
-      {/* Barre latérale de détails */}
+      {/* Details Sidebar */}
       <NodeDetailsSidebar />
     </div>
   );
 }
 ```
 
-## Composants disponibles
+## Available Components
 
-- `GraphVisualization` : Visualisation 2D du graphe
-- `GraphVR` : Visualisation VR du graphe
-- `NodeDetailsSidebar` : Barre latérale affichant les détails des nœuds
-- `GraphLegend` : Légende du graphe
-- `EndpointSelector` : Sélecteur de point de terminaison
-- `LoadingAnimation` : Animation de chargement
+### Main Components
+- `GraphVisualization`: 2D/3D graph visualization with all features
+- `GraphVR`: Immersive VR visualization
+- `NodeDetailsSidebar`: Detailed node sidebar
+- `GraphLegend`: Interactive graph legend
+- `EndpointSelector`: Endpoint selector
+- `LoadingAnimation`: Loading animation
 
-## Utilitaires
+### Navigation Components
+- `NavigationBar`: Main navigation bar
+- `ViewModeSelector`: Visualization mode selector
+- `FilterBar`: Advanced filtering bar
 
-- `api` : Fonctions pour interagir avec l'API
-- `graphData` : Fonctions de manipulation des données du graphe
-- `nodeColors` : Configuration des couleurs des nœuds
+### Detail Components
+- `ClaimCard`: Claims display
+- `PositionCard`: Positions display
+- `ActivityCard`: Activity display
+- `FollowersCard`: Connections display
+
+## API and Utilities
+
+### API
+- `api.js`: Main API interface
+- `Base.js`: Base Mainnet implementation
+- `BaseSepolia.js`: Base Testnet implementation
+
+### Utilities
+- `graphData.js`: Graph data manipulation functions
+- `nodeColors.js`: Node colors configuration
+- `hooks/useGraphState.js`: Graph state management
+
+## Architecture
+
+The library uses a modular architecture with:
+- State management via React Hooks
+- GraphQL communication with endpoints
+- Multi-endpoint support with fallback
+- Data caching system
+- Performance-optimized handling of large graphs
 
 ## License
 
