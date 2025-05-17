@@ -7,7 +7,7 @@ export const ENDPOINTS = {
     displayName: "Base Testnet",
   },
   base: {
-    url: " https://prod.base.intuition-api.com/v1/graphql",
+    url: "https://prod.base.intuition-api.com/v1/graphql",
     displayName: "Base Mainnet",
   },
 };
