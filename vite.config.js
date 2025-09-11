@@ -1,27 +1,24 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
-import pkg from './package.json';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.js'),
-      name: 'PlayerMapGraph',
-      fileName: (format) => `index.${format}.js`,
-      formats: ['es', 'cjs'],
+      entry: 'src/index.js',
+      name: 'PlayermapGraph',
+      fileName: (format) => `index.${format}.js`
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: ['react', 'react-dom', 'aframe', '3d-force-graph-vr'],
       output: {
         globals: {
-          react: 'React',
+          'react': 'React',
           'react-dom': 'ReactDOM',
-        },
-      },
-    },
-    sourcemap: true,
-    minify: 'esbuild',
-  },
-}); 
+          'aframe': 'AFRAME',
+          '3d-force-graph-vr': 'ForceGraphVR'
+        }
+      }
+    }
+  }
+})
