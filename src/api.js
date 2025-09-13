@@ -10,14 +10,14 @@ export const ENDPOINTS = {
     module: Base, // Default to Base module for railsMockApi
   },
   baseSepolia: {
-    url: "https://api.i7n.dev/v1/graphql",
+    url: "https://testnet.intuition.sh/v1/graphql",
     displayName: "Base Testnet",
     module: BaseSepolia,
   },
   base: {
-    url: "https://prod.base.intuition-api.com/v1/graphql",
+    url: "https://testnet.intuition.sh/v1/graphql",
     displayName: "Base Mainnet",
-    module: Base,
+    module: BaseSepolia,
   },
 };
 

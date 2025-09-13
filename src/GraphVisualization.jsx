@@ -118,7 +118,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
 
   React.useEffect(() => {
     if (drawerOpen && activeTab === "connections") {
-      fetchFollowsAndFollowers(4, ACCOUNT_ID, endpoint).then(setConnections);
+      fetchFollowsAndFollowers("0x8f9b5dc2e7b8bd12f6762c839830672f1d13c08e72b5f09f194cafc153f2df8a", ACCOUNT_ID, endpoint).then(setConnections);
     }
   }, [drawerOpen, activeTab, endpoint, ACCOUNT_ID]);
 
@@ -214,7 +214,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
             ) : (
               <div>
                 {claims.map((claim) => (
-                  <ClaimCard key={claim.id} claim={claim} />
+                  <ClaimCard key={claim.term_id} claim={claim} />
                 ))}
               </div>
             )}

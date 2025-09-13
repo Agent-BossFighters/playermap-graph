@@ -27,11 +27,11 @@ const AtomImage = ({ src, alt }) =>
   ) : null;
 
 const PositionCard = ({ position }) => {
-  const vaultShares = Number(position.vault?.total_shares || 0);
+  const vaultShares = Number(position.term?.total_market_cap || 0);
   const shares = Number(position.shares || 0);
-  const currentSharePrice = Number(position.vault?.current_share_price || 0);
+  const currentSharePrice = Number(position.term?.current_share_price || 0);
   const account = position.account;
-  const vault = position.vault;
+  const vault = position.term;
   const triple = vault?.triple;
   const atom = vault?.atom;
 
@@ -61,7 +61,7 @@ const PositionCard = ({ position }) => {
       <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
         <AtomImage src={atom?.image} alt={atom?.label} />
         <div>
-          <InfoRow label="Vault" value={vault?.id} />
+          <InfoRow label="Vault" value={vault?.term_id} />
           <InfoRow label="Atom" value={atom?.label} />
         </div>
       </div>

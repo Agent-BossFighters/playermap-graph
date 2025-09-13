@@ -31,7 +31,7 @@ const ClaimCard = ({ claim }) => (
         </span>
         <span style={{ color: "#fff" }}>{claim.object.label}</span>
       </div>
-      <div
+      {/* <div
         style={{
           color: "#fff",
           fontSize: "1.1em",
@@ -47,7 +47,7 @@ const ClaimCard = ({ claim }) => (
         <span style={{ color: "#fff", fontSize: 13, marginLeft: 4 }}>
           shares
         </span>
-      </div>
+      </div> */}
     </div>
     <button
       style={{

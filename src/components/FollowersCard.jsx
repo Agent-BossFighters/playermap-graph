@@ -34,7 +34,17 @@ const FollowersCard = ({ follows, followers }) => (
     {followers.length === 0 ? (
       <p style={{ color: "#fff" }}>No followers.</p>
     ) : (
-      followers.map((f) => <UserRow key={f.subject.id} user={f.subject} />)
+      followers.map((f) => {
+        const userData = {
+          label: f.creator_id,
+        };
+        
+        console.log('�� FollowersCard - userData.label:', userData.label);
+        console.log('�� FollowersCard - userData complet:', userData);
+        
+        return <UserRow key={f.creator_id} user={userData} />;
+      })
+     
     )}
   </div>
 );
