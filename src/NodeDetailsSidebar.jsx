@@ -28,7 +28,7 @@ const NodeDetailsSidebar = ({ triple, endpoint, onClose }) => {
 
         if (triple.id) {
           const atomData = await fetchAtomDetails(
-            parseInt(triple.id),
+            triple.id,
             endpoint
           );
           setAtomDetails(atomData);
@@ -49,6 +49,22 @@ const NodeDetailsSidebar = ({ triple, endpoint, onClose }) => {
   if (!triple) {
     return null;
   }
+
+
+  const truncateId = (id, start = 4, end = 4) => {
+    if (!id || id.length <= start + end) return id;
+    return `${id.slice(0, start)}...${id.slice(-end)}`;
+  };
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // Optionnel : afficher un toast de confirmation
+      console.log('ID copied:', text);
+    } catch (err) {
+      console.error('Error copying ID:', err);
+    }
+  };
 
   return (
     <div
@@ -174,8 +190,18 @@ const NodeDetailsSidebar = ({ triple, endpoint, onClose }) => {
           >
             <div>
               <span style={{ color: "#ffd32a", fontWeight: "bold" }}>ID:</span>{" "}
-              {atomDetails.id}
-            </div>
+              <span 
+                style={{ 
+                cursor: "pointer", 
+                textDecoration: "underline",
+                color: "#ffd32a"
+              }}
+              onClick={() => copyToClipboard(atomDetails.term_id)}
+              title={`Cliquer pour copier: ${atomDetails.term_id}`}
+            >
+              {truncateId(atomDetails.term_id)}
+            </span>
+          </div>
             <div>
               <span style={{ color: "#ffd32a", fontWeight: "bold" }}>
                 Label:
@@ -189,10 +215,18 @@ const NodeDetailsSidebar = ({ triple, endpoint, onClose }) => {
               {atomDetails.type}
             </div>
             <div>
-              <span style={{ color: "#ffd32a", fontWeight: "bold" }}>
-                Creator:
-              </span>{" "}
-              {atomDetails.creator?.label || "Unknown"}
+              <span style={{ color: "#ffd32a", fontWeight: "bold" }}>Creator:</span>{" "}
+              <span 
+                style={{ 
+                  cursor: "pointer", 
+                  textDecoration: "underline",
+                  color: "#ffd32a"
+                }}
+                onClick={() => copyToClipboard(atomDetails.creator_id)}
+                title={`Cliquer pour copier: ${atomDetails.creator_id}`}
+              >   
+                {truncateId(atomDetails.creator_id)}
+              </span>
             </div>
             <div>
               <span style={{ color: "#ffd32a", fontWeight: "bold" }}>

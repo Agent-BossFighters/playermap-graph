@@ -1,6 +1,6 @@
 import React from "react";
 import { PiGraphLight } from "react-icons/pi";
-import { FaArrowLeft, FaArrowRight, FaUser } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const navBtnStyle = {
   background: "#ffd32a",
@@ -35,7 +35,6 @@ const NavigationBar = ({
   onForward,
   canGoBack,
   canGoForward,
-  onMyView,
 }) => {
   // Gestion du hover avec React (sinon utiliser :hover en CSS)
   const [hovered, setHovered] = React.useState("");
@@ -55,15 +54,14 @@ const NavigationBar = ({
         alignItems: "center",
       }}
     >
-      <button
-        style={getBtnStyle("profile")}
-        onClick={onMyView}
-        aria-label="Profile"
-        onMouseEnter={() => setHovered("profile")}
-        onMouseLeave={() => setHovered("")}
-      >
-        <FaUser />
-      </button>
+      {/* Espace réservé pour le bouton Profile migré vers Player-map */}
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          // Espace vide pour maintenir l'alignement
+        }}
+      />
       <button
         style={{ ...getBtnStyle("graph"), width: 54 }}
         onClick={onReset}
