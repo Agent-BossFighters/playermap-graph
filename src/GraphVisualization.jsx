@@ -9,44 +9,22 @@ import Graph3D from "./Graph3D";
 import NavigationBar from "./NavigationBar";
 import ViewModeSelector from "./ViewModeSelector";
 import { useGraphState } from "./hooks/useGraphState";
-import Drawer from "./components/Drawer";
-import SidebarDrawer from "./components/SidebarDrawer";
-import {
-  fetchClaimsByAccount,
-  fetchPositionsByAccount,
-  searchTriples,
-  fetchFollowsAndFollowers,
-} from "./api";
-import ClaimCard from "./components/ClaimCard";
-import PositionCard from "./components/PositionCard";
-import ActivityCard from "./components/ActivityCard";
+import {searchTriples} from "./api";
 import SmartSearchInterface from "./components/SmartSearchInterface";
 import { transformToGraphData } from "./graphData";
 //*import ChatBox from "./components/ChatBox"; //*
-import FollowersCard from "./components/FollowersCard";
-
 
 const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingChange }) => {
-  const ACCOUNT_ID = walletAddress.toLowerCase();
+  // const ACCOUNT_ID = walletAddress.toLowerCase();
   const fgRef = useRef();
   const containerRef = useRef();
   const [viewMode, setViewMode] = React.useState("2D");
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState(null);
   const [filtersOpen, setFiltersOpen] = React.useState(false);
-  const [claims, setClaims] = React.useState([]);
-  const [positions, setPositions] = React.useState([]);
-  const [activities, setActivities] = React.useState([]);
   const [isSmartSearching, setIsSmartSearching] = useState(false);
   const [isLocalSearching, setIsSearching] = useState(false);
   const [useLocalData, setUseLocalData] = useState(false);
   const [localGraphData, setLocalGraphData] = useState(null);
   const [graphType, setGraphType] = React.useState("agent");
-  const [connections, setConnections] = React.useState({
-    follows: [],
-    followers: [],
-  });
 
   const {
     graphData: hookGraphData,
@@ -96,31 +74,6 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
       setIsInitialLoad(false);
     }
   };
-
-
-  React.useEffect(() => {
-    if (drawerOpen && activeTab === "claims") {
-      fetchClaimsByAccount(ACCOUNT_ID, endpoint).then(setClaims);
-    }
-  }, [drawerOpen, activeTab, endpoint, ACCOUNT_ID]);
-
-  React.useEffect(() => {
-    if (drawerOpen && activeTab === "positions") {
-      fetchPositionsByAccount(ACCOUNT_ID, endpoint).then(setPositions);
-    }
-  }, [drawerOpen, activeTab, endpoint, ACCOUNT_ID]);
-
-  React.useEffect(() => {
-    if (drawerOpen && activeTab === "activity") {
-      fetchPositionsByAccount(ACCOUNT_ID, endpoint).then(setActivities);
-    }
-  }, [drawerOpen, activeTab, endpoint, ACCOUNT_ID]);
-
-  React.useEffect(() => {
-    if (drawerOpen && activeTab === "connections") {
-      fetchFollowsAndFollowers("0x8f9b5dc2e7b8bd12f6762c839830672f1d13c08e72b5f09f194cafc153f2df8a", ACCOUNT_ID, endpoint).then(setConnections);
-    }
-  }, [drawerOpen, activeTab, endpoint, ACCOUNT_ID]);
 
   const handleSearch = async (query, filters) => {
     try {
@@ -180,142 +133,6 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
       setUseLocalData(false);
     }
   };
-
-  const tabs = [
-    { key: null, label: "Map" },
-    { key: "connections", label: "Connections" },
-    { key: "positions", label: "Positions" },
-    { key: "claims", label: "Claims" },
-    { key: "activity", label: "Activity" },
-  ];
-
-  const handleTabChange = (tabKey) => {
-    setActiveTab(tabKey);
-    setDrawerOpen(!!tabKey);
-  };
-
-  const getDrawerContent = () => {
-    switch (activeTab) {
-      case "claims":
-        return (
-          <>
-            <h2
-              style={{
-                fontSize: "2rem",
-                fontWeight: "bold",
-                color: "#ffd32a",
-                marginBottom: 18,
-              }}
-            >
-              Claims
-            </h2>
-            {claims.length === 0 ? (
-              <p style={{ color: "#fff" }}>No claims found.</p>
-            ) : (
-              <div>
-                {claims.map((claim) => (
-                  <ClaimCard key={claim.term_id} claim={claim} />
-                ))}
-              </div>
-            )}
-          </>
-        );
-      case "positions":
-        return (
-          <>
-            <h2
-              style={{
-                fontSize: "2rem",
-                fontWeight: "bold",
-                color: "#ffd32a",
-                marginBottom: 18,
-              }}
-            >
-              Positions
-            </h2>
-            {positions.length === 0 ? (
-              <p style={{ color: "#fff" }}>No positions found.</p>
-            ) : (
-              <div>
-                {positions.map((position) => (
-                  <PositionCard key={position.id} position={position} />
-                ))}
-              </div>
-            )}
-          </>
-        );
-      case "activity":
-        return (
-          <>
-            <h2
-              style={{
-                fontSize: "2rem",
-                fontWeight: "bold",
-                color: "#ffd32a",
-                marginBottom: 18,
-              }}
-            >
-              Activity
-            </h2>
-            {activities.length === 0 ? (
-              <p style={{ color: "#fff" }}>Aucune activité trouvée.</p>
-            ) : (
-              <div>
-                {activities.map((activity) => (
-                  <ActivityCard key={activity.id} position={activity} />
-                ))}
-              </div>
-            )}
-          </>
-        );
-      case "connections":
-        return (
-          <>
-            <h2
-              style={{
-                fontSize: "2rem",
-                fontWeight: "bold",
-                color: "#ffd32a",
-                marginBottom: 18,
-              }}
-            >
-              Connections
-            </h2>
-            <FollowersCard
-              follows={connections.follows || []}
-              followers={connections.followers || []}
-            />
-          </>
-        );
-      default:
-        return null;
-    }
-  };
-
-  // Contenu du sidebar
-  const sidebarContent = (
-    <>
-      <h2>Mon Profil</h2>
-      <p>Nom : Utilisateur de base</p>
-      <p>Email : user@email.com</p>
-      <p>Rôle : Joueur</p>
-      <button
-        style={{
-          background: "#ffd32a",
-          color: "#18181b",
-          border: "none",
-          borderRadius: 8,
-          padding: "10px 18px",
-          fontWeight: "bold",
-          marginTop: 20,
-          cursor: "pointer",
-        }}
-        onClick={() => setSidebarOpen(false)}
-      >
-        Fermer
-      </button>
-    </>
-  );
 
   // Composant de sélection du type de graphique
   const GraphTypeSelector = () => (
@@ -382,9 +199,6 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
         }}
         canGoBack={canGoBack}
         canGoForward={canGoForward}
-        onMyView={() => {
-          setSidebarOpen(true);
-        }}
       />
 
       <div
@@ -511,40 +325,6 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
           }}
           onEngineStop={handleEngineStop}
           fgRef={fgRef}
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          drawerOpen={drawerOpen}
-          drawerContent={getDrawerContent()}
-          onDrawerClose={() => {
-            setDrawerOpen(false);
-            setActiveTab(null);
-          }}
-          sidebarOpen={sidebarOpen}
-          sidebarContent={
-            <>
-              <h2>My Profile</h2>
-              <p>Name: Base User</p>
-              <p>Email: user@email.com</p>
-              <p>Role: Player</p>
-              <button
-                style={{
-                  background: "#ffd32a",
-                  color: "#18181b",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "10px 18px",
-                  fontWeight: "bold",
-                  marginTop: 20,
-                  cursor: "pointer",
-                }}
-                onClick={() => setSidebarOpen(false)}
-              >
-                Close
-              </button>
-            </>
-          }
-          onSidebarClose={() => setSidebarOpen(false)}
           selectedTriple={selectedTriple}
           endpoint={endpoint}
         >
@@ -561,40 +341,6 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
           }}
           onEngineStop={handleEngineStop}
           fgRef={fgRef}
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          drawerOpen={drawerOpen}
-          drawerContent={getDrawerContent()}
-          onDrawerClose={() => {
-            setDrawerOpen(false);
-            setActiveTab(null);
-          }}
-          sidebarOpen={sidebarOpen}
-          sidebarContent={
-            <>
-              <h2>My Profile</h2>
-              <p>Name: Base User</p>
-              <p>Email: user@email.com</p>
-              <p>Role: Player</p>
-              <button
-                style={{
-                  background: "#ffd32a",
-                  color: "#18181b",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "10px 18px",
-                  fontWeight: "bold",
-                  marginTop: 20,
-                  cursor: "pointer",
-                }}
-                onClick={() => setSidebarOpen(false)}
-              >
-                Close
-              </button>
-            </>
-          }
-          onSidebarClose={() => setSidebarOpen(false)}
           selectedTriple={selectedTriple}
           endpoint={endpoint}
         >
@@ -621,38 +367,6 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
           endpoint={endpoint}
         />
       )}
-
-      <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)}>
-        <h2>My Profile</h2>
-        <p>Name: Base User</p>
-        <p>Email: user@email.com</p>
-        <p>Role: Player</p>
-        <button
-          style={{
-            background: "#ffd32a",
-            color: "#18181b",
-            border: "none",
-            borderRadius: 8,
-            padding: "10px 18px",
-            fontWeight: "bold",
-            marginTop: 20,
-            cursor: "pointer",
-          }}
-          onClick={() => setSidebarOpen(false)}
-        >
-          Close
-        </button>
-      </SidebarDrawer>
-
-      <Drawer
-        open={!!drawerOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          setActiveTab(null);
-        }}
-      >
-        {getDrawerContent()}
-      </Drawer>
     </div>
   );
 };

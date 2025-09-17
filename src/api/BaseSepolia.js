@@ -242,70 +242,35 @@ export const searchTriples = async (filters, endpoint = "base") => {
   }
 };
 
-// Fetch Claims by Account (using triples instead of claims)
-export const fetchClaimsByAccount = async (
-  accountId,
-  endpoint = "base"
-) => {
-  const client = createClient(endpoint);
-  const query = gql`
-    query ClaimsByAccount($accountId: String!) {
-      triples(where: { creator_id: { _eq: $accountId } }) {
-        term_id
-        subject {
-          term_id
-          label
-          type
-          image
-        }
-        predicate {
-          term_id
-          label
-          type
-        }
-        object {
-          term_id
-          label
-          type
-          image
-        }
-      }
-    }
-  `;
-  const variables = { accountId: "0xDdffF342CE2547338B0F689aA3eC86893340FBdf" }; //TODO: Address hardcoded because playermap-graph doesn't receive wallet context from staging-front
-  const data = await client.request(query, variables);
-  return data.triples;
-};
-
-// Fetch Triples (Positions) by Creator
-export const fetchTriplesByCreator = async (
-  creatorId,
-  endpoint = "base"
-) => {
-  const client = createClient(endpoint);
-  const query = gql`
-    query TriplesByCreator($creatorId: String!) {
-      triples(where: { creator_id: { _eq: $creatorId } }) {
-        term_id
-        subject {
-          label
-          term_id
-        }
-        predicate {
-          label
-          term_id
-        }
-        object {
-          label
-          term_id
-        }
-      }
-    }
-  `;
-  const variables = { creatorId };
-  const data = await client.request(query, variables);
-  return data.triples;
-};
+// // Fetch Triples (Positions) by Creator
+// export const fetchTriplesByCreator = async (
+//   creatorId,
+//   endpoint = "base"
+// ) => {
+//   const client = createClient(endpoint);
+//   const query = gql`
+//     query TriplesByCreator($creatorId: String!) {
+//       triples(where: { creator_id: { _eq: $creatorId } }) {
+//         term_id
+//         subject {
+//           label
+//           term_id
+//         }
+//         predicate {
+//           label
+//           term_id
+//         }
+//         object {
+//           label
+//           term_id
+//         }
+//       }
+//     }
+//   `;
+//   const variables = { creatorId };
+//   const data = await client.request(query, variables);
+//   return data.triples;
+// };
 
 // Fetch Triples filtered for Agent view
 export const fetchTriplesForAgent = async (
@@ -413,132 +378,39 @@ export const fetchTriplesForAgent = async (
   }
 };
 
-// Fetch Positions by Account
-export const fetchPositionsByAccount = async (
-  accountId,
-  endpoint = "base"
-) => {
-  const client = createClient(endpoint);
-  const query = gql`
-    query GetAccountActivity($accountId: String!) {
-      positions(where: { account_id: { _eq: $accountId } }) {
-        id
-        shares
-        account {
-          id
-          label
-          image
-          atom_id
-          type
-        }
-        term {
-          id
-          total_market_cap
-          total_assets
-        }
-      }
-    }
-  `;
-  const variables = { accountId: "0xDdffF342CE2547338B0F689aA3eC86893340FBdf" }; //TODO: Address hardcoded because playermap-graph doesn't receive wallet context from staging-front
-  const data = await client.request(query, variables);
-  return data.positions;
-};
+// export const fetchAtomIdByCreator = async (creatorAddress, endpoint = "base") => {
+//   const client = createClient(endpoint);
 
-export const fetchAtomIdByCreator = async (creatorAddress, endpoint = "base") => {
-  const client = createClient(endpoint);
-  
-  console.log('🔍 fetchAtomIdByCreator - creatorAddress:', creatorAddress);
-  console.log('🔍 fetchAtomIdByCreator - endpoint:', endpoint);
-  
-  const query = gql`
-    query GetAtomByCreator($creatorAddress: String!) {
-      atoms(where: { creator_id: { _eq: $creatorAddress } }) {
-        term_id
-        label
-        creator_id
-      }
-    }
-  `;
-  
-  const variables = { creatorAddress };
-  console.log('🔍 fetchAtomIdByCreator - variables:', variables);
-  
-  try {
-    const data = await client.request(query, variables);
-    console.log('🔍 fetchAtomIdByCreator - data reçue:', data);
-    console.log('�� fetchAtomIdByCreator - nombre d\'atoms trouvés:', data.atoms.length);
-    
-    if (data.atoms.length > 0) {
-      console.log('�� fetchAtomIdByCreator - premier atom:', data.atoms[0]);
-      return data.atoms[0].term_id;
-    }
-    
-    console.warn('⚠️ fetchAtomIdByCreator - Aucun atom trouvé');
-    return null;
-  } catch (error) {
-    console.error('❌ fetchAtomIdByCreator - Erreur:', error);
-    throw error;
-  }
-};
+//   console.log('🔍 fetchAtomIdByCreator - creatorAddress:', creatorAddress);
+//   console.log('🔍 fetchAtomIdByCreator - endpoint:', endpoint);
 
-// Fetch follows and followers
-export const fetchFollowsAndFollowers = async (
-  predicateId,
-  accountId,
-  endpoint = "base"
-) => {
-  const client = createClient(endpoint);
-  const userAtomId = "0x4b5ec64b82fae56c71a469fc902df2096b0dc7c930dd61032e817d583575fe47" // en attente de testawait fetchAtomIdByCreator("0xDdffF342CE2547338B0F689aA3eC86893340FBdf", endpoint); //TODO: Address hardcoded because playermap-graph doesn't receive wallet context from staging-front replace by "accountId"
-  if (!userAtomId) {
-    console.warn('⚠️ Aucun atom trouvé pour cette adresse');
-    return { follows: [], followers: [] };
-  }
-  const query = gql`
-    query GetFollowsAndFollowers($predicateId: String!, $userAtomId: String!) {
-      follows: triples(
-        where: {
-          _and: [
-            { predicate_id: { _eq: $predicateId } },
-            { subject_id: { _eq: $userAtomId } }
-          ]
-        }
-      ) {
-        term_id
-        object {
-          term_id
-          label
-          image
-          creator_id
-        }
-      }
-      followers: triples(
-        where: {
-          _and: [
-            { predicate_id: { _eq: $predicateId } },
-            { object_id: { _eq: $userAtomId } }
-          ]
-        }
-      ) {
-        term_id
-        creator_id
-        subject {
-          term_id
-          label
-          image
-        }
-      }
-    }
-  `;
-  const variables = { predicateId, userAtomId };
-  const data = await client.request(query, variables);
-  return {
-    follows: data.follows.map(f => ({
-      ...f,
-      object: { ...f.object, id: f.object.term_id }
-    })),
-    followers: data.followers.map(f => ({
-      ...f,
-      subject: { ...f.subject, id: f.subject.term_id }
-    }))
-  };
-};
+//   const query = gql`
+//     query GetAtomByCreator($creatorAddress: String!) {
+//       atoms(where: { creator_id: { _eq: $creatorAddress } }) {
+//         term_id
+//         label
+//         creator_id
+//       }
+//     }
+//   `;
+
+//   const variables = { creatorAddress };
+//   console.log('🔍 fetchAtomIdByCreator - variables:', variables);
+
+//   try {
+//     const data = await client.request(query, variables);
+//     console.log('🔍 fetchAtomIdByCreator - data reçue:', data);
+//     console.log('�� fetchAtomIdByCreator - nombre d\'atoms trouvés:', data.atoms.length);
+
+//     if (data.atoms.length > 0) {
+//       console.log('�� fetchAtomIdByCreator - premier atom:', data.atoms[0]);
+//       return data.atoms[0].term_id;
+//     }
+
+//     console.warn('⚠️ fetchAtomIdByCreator - Aucun atom trouvé');
+//     return null;
+//   } catch (error) {
+//     console.error('❌ fetchAtomIdByCreator - Erreur:', error);
+//     throw error;
+//   }
+// };
