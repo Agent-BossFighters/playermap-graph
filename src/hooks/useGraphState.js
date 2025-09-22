@@ -2,10 +2,12 @@ import { useState, useCallback, useRef } from "react";
 import { fetchTriples, fetchTriplesForNode, searchTriples, fetchTriplesForAgent } from "../api";
 import { transformToGraphData } from "../graphData";
 
-// ID de l'objet agent
-const AGENT_OBJECT_ID = "0x5dc0a2335c12343d8e0f71b62a73fbf70d06fcbaf647f57d82a189873ad90da3"; // ID de l'atom du jeu BOSSFIGHTERS
+// ID de l'objet agent par défaut (ID bidon pour test)
+const DEFAULT_AGENT_OBJECT_ID = "0x5dc0a2335c12343d8e0f71b62a73fbf70d06fcbaf647f57d82a189873ad90da3"; // ID bidon pour test
 
-export const useGraphState = (endpoint, graphType = "base") => {
+export const useGraphState = (endpoint, graphType = "base", gamesId) => {
+  // Utiliser gamesId si fourni, sinon utiliser la valeur par défaut
+  const AGENT_OBJECT_ID = gamesId || DEFAULT_AGENT_OBJECT_ID;
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [initialGraphData, setInitialGraphData] = useState(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);

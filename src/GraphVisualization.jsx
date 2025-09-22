@@ -14,7 +14,7 @@ import SmartSearchInterface from "./components/SmartSearchInterface";
 import { transformToGraphData } from "./graphData";
 //*import ChatBox from "./components/ChatBox"; //*
 
-const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingChange }) => {
+const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingChange, gamesId }) => {
   // const ACCOUNT_ID = walletAddress.toLowerCase();
   const fgRef = useRef();
   const containerRef = useRef();
@@ -52,7 +52,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
     setGraphHistory,
     currentHistoryIndex,
     setCurrentHistoryIndex,
-  } = useGraphState(endpoint, graphType);
+  } = useGraphState(endpoint, graphType, gamesId);
 
   const graphData =
     useLocalData && localGraphData ? localGraphData : hookGraphData;
