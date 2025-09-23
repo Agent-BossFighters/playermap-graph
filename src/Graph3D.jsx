@@ -14,6 +14,7 @@ const Graph3D = ({
   children,
   selectedTriple,
   endpoint,
+  disableNodeDetailsSidebar = false,
 }) => {
   const containerRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 100, height: 100 });
@@ -172,7 +173,7 @@ const Graph3D = ({
       />
 
       {/* Afficher le NodeDetailsSidebar */}
-      {selectedTriple && (
+      {selectedTriple && !disableNodeDetailsSidebar && (
         <div
           style={{
             position: "absolute",

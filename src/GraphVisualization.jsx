@@ -14,7 +14,7 @@ import SmartSearchInterface from "./components/SmartSearchInterface";
 import { transformToGraphData } from "./graphData";
 //*import ChatBox from "./components/ChatBox"; //*
 
-const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingChange, gamesId }) => {
+const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingChange, gamesId, disableNodeDetailsSidebar = false }) => {
   // const ACCOUNT_ID = walletAddress.toLowerCase();
   const fgRef = useRef();
   const containerRef = useRef();
@@ -52,7 +52,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
     setGraphHistory,
     currentHistoryIndex,
     setCurrentHistoryIndex,
-  } = useGraphState(endpoint, graphType, gamesId);
+  } = useGraphState(endpoint, graphType, gamesId, onNodeSelect);
 
   const graphData =
     useLocalData && localGraphData ? localGraphData : hookGraphData;
@@ -327,6 +327,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
           fgRef={fgRef}
           selectedTriple={selectedTriple}
           endpoint={endpoint}
+          disableNodeDetailsSidebar={disableNodeDetailsSidebar}
         >
           <GraphLegend />
         </Graph2D>
@@ -343,6 +344,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
           fgRef={fgRef}
           selectedTriple={selectedTriple}
           endpoint={endpoint}
+          disableNodeDetailsSidebar={disableNodeDetailsSidebar}
         >
           <GraphLegend />
         </Graph3D>
@@ -365,6 +367,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
           }}
           selectedTriple={selectedTriple}
           endpoint={endpoint}
+          disableNodeDetailsSidebar={disableNodeDetailsSidebar}
         />
       )}
     </div>

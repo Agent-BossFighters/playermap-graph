@@ -35,6 +35,7 @@ const Graph2D = ({
   children,
   selectedTriple,
   endpoint,
+  disableNodeDetailsSidebar = false,
 }) => {
   const containerRef = useRef();
   const [hoveredLink, setHoveredLink] = useState(null);
@@ -305,7 +306,7 @@ const Graph2D = ({
       ) : null}
 
       {/* NodeDetailsSidebar */}
-      {selectedTriple && (
+      {selectedTriple && !disableNodeDetailsSidebar && (
         <div
           style={{
             position: "absolute",
