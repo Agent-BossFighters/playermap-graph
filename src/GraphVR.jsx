@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import ForceGraphVR from "3d-force-graph-vr";
 import NodeDetailsSidebar from "./NodeDetailsSidebar";
 
-const GraphVR = ({ graphData, onNodeClick, onBack, onForward, selectedTriple, endpoint }) => {
+const GraphVR = ({ graphData, onNodeClick, onBack, onForward, selectedTriple, endpoint, disableNodeDetailsSidebar = false }) => {
   const containerRef = useRef();
   const graphRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 100, height: 100 });
@@ -99,7 +99,7 @@ const GraphVR = ({ graphData, onNodeClick, onBack, onForward, selectedTriple, en
       </div>
       
       {/* Utiliser le vrai NodeDetailsSidebar à la place de notre info box simplifiée */}
-      {selectedTriple && (
+      {selectedTriple && !disableNodeDetailsSidebar && (
         <div style={{ 
           position: "absolute", 
           top: 80, 
