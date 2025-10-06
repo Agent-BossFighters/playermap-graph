@@ -13,10 +13,10 @@ const FilterBar = ({
       style={{
         display: "flex",
         flexDirection: "column",
-        background: "#18181b",
+        background: "rgba(255, 255, 255, 0.05)",
         padding: "16px 24px",
         borderRadius: "10px",
-        border: "2px solid #ffd32a",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
         boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5)",
         position: "relative",
       }}
