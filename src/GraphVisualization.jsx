@@ -179,7 +179,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
         right: 0,
         bottom: 0,
         width: "100%",
-        height: "100vh",
+        height: "72vh",
         overflow: "hidden",
       }}
     >

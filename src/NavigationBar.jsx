@@ -7,8 +7,8 @@ const navBtnStyle = {
   color: "#18181b",
   border: "none",
   borderRadius: 12,
-  width: 44,
-  height: 44,
+  width: 54,
+  height: 54,
   fontSize: 22,
   fontWeight: "bold",
   boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
@@ -57,8 +57,8 @@ const NavigationBar = ({
       {/* Espace réservé pour le bouton Profile migré vers Player-map */}
       <div
         style={{
-          width: 44,
-          height: 44,
+          width: 54,
+          height: 54,
           // Espace vide pour maintenir l'alignement
         }}
       />
