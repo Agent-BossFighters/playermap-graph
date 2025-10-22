@@ -6,7 +6,8 @@ const ViewModeSelector = ({ viewMode, onViewModeChange }) => {
       className="agent-navbar"
       style={{
         display: "flex",
-        alignItems: "center",
+        flexDirection: "column",
+        alignItems: "left",
         gap: "10px",
       }}
     >
@@ -21,6 +22,7 @@ const ViewModeSelector = ({ viewMode, onViewModeChange }) => {
           background: "#ffd32a",
           color: "rgb(24, 24, 27)",
           borderRadius: "12px",
+          height: "42px",
           padding: "6px 12px",
           fontWeight: "bold",
           fontSize: 15,

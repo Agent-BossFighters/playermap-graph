@@ -6,7 +6,7 @@ const GraphLegend = () => {
     <div
       style={{
         position: "absolute",
-        bottom: 0,
+        bottom: 5,
         right: 5,
         zIndex: 1000,
       }}

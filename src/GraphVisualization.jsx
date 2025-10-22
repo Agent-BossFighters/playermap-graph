@@ -179,7 +179,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
         right: 0,
         bottom: 0,
         width: "100%",
-        height: "72vh",
+        height: "100%",
         overflow: "hidden",
       }}
     >
@@ -205,7 +205,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
         style={{
           position: "absolute",
           top: "80px",
-          left: "18px",
+          left: "5px",
           zIndex: 50,
         }}
       >
@@ -250,8 +250,8 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
         className="agent-navbar"
         style={{
           position: "absolute",
-          top: "10px",
-          right: "10px",
+          top: "5px",
+          right: "5px",
           zIndex: 10,
           display: "flex",
           flexDirection: "row",
@@ -268,14 +268,14 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
               color: "#18181b",
               border: "none",
               borderRadius: 12,
+              top: 5,
               width: 120,
-              height: 40,
-              fontSize: 15,
+              height: 54,
+              fontSize: 18,
               fontWeight: "bold",
               boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
               cursor: "pointer",
               textTransform: "uppercase",
-              marginLeft: 12,
               transition: "background 0.2s, color 0.2s, transform 0.1s",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#ffe066")}
