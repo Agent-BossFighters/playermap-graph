@@ -6,19 +6,12 @@ const ViewModeSelector = ({ viewMode, onViewModeChange }) => {
       className="agent-navbar"
       style={{
         display: "flex",
-        alignItems: "center",
+        flexDirection: "column",
+        alignItems: "left",
         gap: "10px",
-        background: "#18181b",
-        border: "2px solid #ffd32a",
-        borderRadius: "10px",
-        padding: "6px 16px",
-        color: "#ffd32a",
-        fontWeight: "bold",
-        fontSize: "15px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
       }}
     >
-      <label htmlFor="viewMode" style={{ color: "#ffd32a", marginRight: 8 }}>
+      <label htmlFor="viewMode" style={{ color: "#ffd32a"}}>
         View Mode:
       </label>
       <select
@@ -26,11 +19,11 @@ const ViewModeSelector = ({ viewMode, onViewModeChange }) => {
         value={viewMode}
         onChange={(e) => onViewModeChange(e.target.value)}
         style={{
-          background: "#232326",
-          color: "#ffd32a",
-          border: "1.5px solid #ffd32a",
-          borderRadius: 6,
-          padding: "4px 10px",
+          background: "#ffd32a",
+          color: "rgb(24, 24, 27)",
+          borderRadius: "12px",
+          height: "42px",
+          padding: "6px 12px",
           fontWeight: "bold",
           fontSize: 15,
           outline: "none",

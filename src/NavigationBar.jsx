@@ -1,5 +1,5 @@
 import React from "react";
-import { PiGraphLight } from "react-icons/pi";
+import PIGraph_icon from "./asset/PIGraph_icon.svg";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const navBtnStyle = {
@@ -7,8 +7,8 @@ const navBtnStyle = {
   color: "#18181b",
   border: "none",
   borderRadius: 12,
-  width: 44,
-  height: 44,
+  width: 54,
+  height: 54,
   fontSize: 22,
   fontWeight: "bold",
   boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
@@ -45,20 +45,20 @@ const NavigationBar = ({
     <div
       style={{
         position: "absolute",
-        top: "18px",
-        left: "18px",
+        top: "5px",
+        left: "8px",
         zIndex: 50,
         display: "flex",
         flexDirection: "row",
-        gap: "12px",
+        gap: "16px",
         alignItems: "center",
       }}
     >
       {/* Espace réservé pour le bouton Profile migré vers Player-map */}
       <div
         style={{
-          width: 44,
-          height: 44,
+          width: 54,
+          height: 54,
           // Espace vide pour maintenir l'alignement
         }}
       />
@@ -69,7 +69,7 @@ const NavigationBar = ({
         onMouseEnter={() => setHovered("graph")}
         onMouseLeave={() => setHovered("")}
       >
-        <PiGraphLight size={28} />
+        <img src={PIGraph_icon} alt="PI Graph" style={{ width: 28, height: 28 }} />
       </button>
       <button
         style={{ ...getBtnStyle("prev"), opacity: !canGoBack ? 0.5 : 1 }}

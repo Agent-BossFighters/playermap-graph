@@ -43,7 +43,6 @@ const GraphVR = ({ graphData, onNodeClick, onBack, onForward, selectedTriple, en
       if (onNodeClick) {
         // Wrapper pour s'assurer que l'event est correctement passé
         graph.onNodeClick(node => {
-          console.log("VR Node clicked inside Graph:", node);
           onNodeClick(node);
         });
       }

@@ -60,7 +60,6 @@ const NodeDetailsSidebar = ({ triple, endpoint, onClose }) => {
     try {
       await navigator.clipboard.writeText(text);
       // Optionnel : afficher un toast de confirmation
-      console.log('ID copied:', text);
     } catch (err) {
       console.error('Error copying ID:', err);
     }

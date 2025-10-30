@@ -205,11 +205,9 @@ export const searchTriples = async (filters, endpoint = "baseSepolia") => {
     where: where._and.length > 0 ? where : {},
   };
 
-  console.log("Executing search query with variables:", variables);
 
   try {
     const data = await client.request(query, variables);
-    console.log("Search query response:", data);
     return data.triples;
   } catch (error) {
     console.error("Error executing search query:", error);

@@ -6,19 +6,14 @@ const GraphLegend = () => {
     <div
       style={{
         position: "absolute",
-        bottom: 80,
-        right: 30,
+        bottom: 5,
+        right: 5,
         zIndex: 1000,
-        background: "#18181b",
-        borderRadius: "10px",
-        border: "2px solid #ffd32a",
-        padding: "16px 24px",
-        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5)",
       }}
     >
       <h4
         style={{
-          margin: "0 0 16px 0",
+          margin: "0 0 12px 0",
           fontSize: "18px",
           color: "#ffd32a",
           fontWeight: "bold",
@@ -30,11 +25,15 @@ const GraphLegend = () => {
       <ul
         style={{
           listStyle: "none",
-          padding: 0,
           margin: 0,
           display: "flex",
           flexDirection: "column",
           gap: "12px",
+          background: "rgba(255, 255, 255, 0.05)",
+          borderRadius: "10px",
+          border: "2px solid rgba(255, 255, 255, 0.1)",
+          padding: "16px 24px",
+          boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5)",
         }}
       >
         <li
@@ -87,8 +86,8 @@ const GraphLegend = () => {
         >
           <span
             style={{
-              width: "24px",
-              height: "12px",
+              width: "20px",
+              height: "8px",
               backgroundColor: NODE_COLORS.PREDICATE,
               borderRadius: "4px",
               display: "inline-block",
