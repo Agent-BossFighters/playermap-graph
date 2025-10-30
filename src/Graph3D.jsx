@@ -160,15 +160,23 @@ const Graph3D = ({
           return group;
         }}
         onEngineStop={onEngineStop}
-        onNodeHover={setHoveredNode}
-        onLinkHover={setHoveredLink}
+        onNodeHover={(node) => {
+          requestAnimationFrame(() => setHoveredNode(node));
+        }}
+        onLinkHover={(link) => {
+          requestAnimationFrame(() => setHoveredLink(link));
+        }}
         onBackgroundClick={() => {
-          setHoveredLink(null);
-          setHoveredNode(null);
+          requestAnimationFrame(() => {
+            setHoveredLink(null);
+            setHoveredNode(null);
+          });
         }}
         onZoom={() => {
-          setHoveredLink(null);
-          setHoveredNode(null);
+          requestAnimationFrame(() => {
+            setHoveredLink(null);
+            setHoveredNode(null);
+          });
         }}
       />
 

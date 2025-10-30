@@ -69,7 +69,7 @@ const Graph2D = ({
         img.src = node.image;
         img.onload = () => {
           setLoadedImages((prev) => new Map(prev).set(node.image, img));
-          if (fgRef.current) {
+          if (fgRef.current && typeof fgRef.current.emit === 'function') {
             fgRef.current.emit("redraw");
           }
         };
@@ -78,8 +78,23 @@ const Graph2D = ({
   }, [graphData.nodes]);
 
   const handleZoom = useCallback(() => {
-    setHoveredLink(null);
-    setHoveredNode(null);
+    requestAnimationFrame(() => {
+      setHoveredLink(null);
+      setHoveredNode(null);
+    });
+  }, []);
+
+  // Wrapper pour différer les mises à jour d'état pendant le rendu
+  const handleNodeHover = useCallback((node) => {
+    requestAnimationFrame(() => {
+      setHoveredNode(node);
+    });
+  }, []);
+
+  const handleLinkHover = useCallback((link) => {
+    requestAnimationFrame(() => {
+      setHoveredLink(link);
+    });
   }, []);
 
   const handleMouseMove = useCallback((e) => {
@@ -93,8 +108,10 @@ const Graph2D = ({
   }, []);
 
   const handleBackgroundClick = useCallback(() => {
-    setHoveredLink(null);
-    setHoveredNode(null);
+    requestAnimationFrame(() => {
+      setHoveredLink(null);
+      setHoveredNode(null);
+    });
   }, []);
 
   const getTooltipPosition = () => {
@@ -147,8 +164,9 @@ const Graph2D = ({
                 img.src = node.image;
                 img.onload = () => {
                   node.__imgLoaded = true;
-                  if (fgRef && fgRef.current && fgRef.current.emit)
+                  if (fgRef && fgRef.current && typeof fgRef.current.emit === 'function') {
                     fgRef.current.emit("redraw");
+                  }
                 };
                 node.__img = img;
                 node.__imgLoaded = false;
@@ -192,8 +210,9 @@ const Graph2D = ({
                 img.src = node.image;
                 img.onload = () => {
                   node.__imgLoaded = true;
-                  if (fgRef && fgRef.current && fgRef.current.emit)
+                  if (fgRef && fgRef.current && typeof fgRef.current.emit === 'function') {
                     fgRef.current.emit("redraw");
+                  }
                 };
                 node.__img = img;
                 node.__imgLoaded = false;
@@ -262,8 +281,8 @@ const Graph2D = ({
         nodeAutoColorBy="type"
         onNodeClick={onNodeClick}
         onEngineStop={onEngineStop}
-        onNodeHover={setHoveredNode}
-        onLinkHover={setHoveredLink}
+        onNodeHover={handleNodeHover}
+        onLinkHover={handleLinkHover}
         onBackgroundClick={handleBackgroundClick}
         onZoom={handleZoom}
       />
