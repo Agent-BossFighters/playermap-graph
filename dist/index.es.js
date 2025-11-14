@@ -3827,8 +3827,8 @@ const hP = (r, e, n) => r.document ? r : {
     displayName: "Intuition Testnet"
   },
   base: {
-    url: "https://testnet.intuition.sh/v1/graphql",
-    displayName: "Intuition Testnet"
+    url: "https://mainnet.intuition.sh/v1/graphql",
+    displayName: "Intuition Mainnet"
   }
 }, bc = (r) => new iv(pM[r].url), rv = (r) => ({
   id: r.term_id,
@@ -4099,8 +4099,8 @@ const hP = (r, e, n) => r.document ? r : {
     module: ub
   },
   base: {
-    url: "https://testnet.intuition.sh/v1/graphql",
-    displayName: "Base Mainnet",
+    url: "https://mainnet.intuition.sh/v1/graphql",
+    displayName: "Intuition Mainnet",
     module: ub
   }
 }, LJ = (r) => {
