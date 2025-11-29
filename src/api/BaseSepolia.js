@@ -72,170 +72,410 @@ export const fetchAtomDetails = async (atomId, endpoint = "base") => {
 // Fetch Triples Details
 export const fetchTriples = async (endpoint = "base") => {
   const client = createClient(endpoint);
-  let query, data;
-  query = gql`
-    query {
-      triples(limit: 1000) {
-        term_id
-        subject {
-          label
+  
+  try {
+    // Étape 1: Récupérer les triples avec seulement les IDs
+    const query = gql`
+      query {
+        triples(limit: 1000) {
           term_id
+          subject_id
+          predicate_id
+          object_id
+        }
+      }
+    `;
+    
+    const data = await client.request(query);
+    const triples = data.triples || [];
+    
+    if (triples.length === 0) {
+      return [];
+    }
+
+    // Étape 2: Récupérer les détails des subjects, predicates et objects
+    const subjectIds = [...new Set(triples.map(t => t.subject_id).filter(Boolean))];
+    const predicateIds = [...new Set(triples.map(t => t.predicate_id).filter(Boolean))];
+    const objectIds = [...new Set(triples.map(t => t.object_id).filter(Boolean))];
+
+    const atomsQuery = gql`
+      query GetAtoms($subjectIds: [String!]!, $predicateIds: [String!]!, $objectIds: [String!]!) {
+        subjects: atoms(where: { term_id: { _in: $subjectIds } }) {
+          term_id
+          label
           creator_id
           type
           image
         }
-        predicate {
-          label
+        predicates: atoms(where: { term_id: { _in: $predicateIds } }) {
           term_id
+          label
           creator_id
           type
         }
-        object {
-          label
+        objects: atoms(where: { term_id: { _in: $objectIds } }) {
           term_id
+          label
           creator_id
           type
           image
         }
       }
-    }
-  `;
-  data = await client.request(query);
-  return {
-    items: data.triples,
-  }.items;
+    `;
+
+    const atomsData = await client.request(atomsQuery, {
+      subjectIds,
+      predicateIds,
+      objectIds,
+    });
+
+    const subjectsMap = new Map(
+      (atomsData.subjects || []).map(atom => [atom.term_id, atom])
+    );
+    const predicatesMap = new Map(
+      (atomsData.predicates || []).map(atom => [atom.term_id, atom])
+    );
+    const objectsMap = new Map(
+      (atomsData.objects || []).map(atom => [atom.term_id, atom])
+    );
+
+    // Étape 3: Enrichir les triples avec les détails
+    const enrichedTriples = triples.map(triple => ({
+      term_id: triple.term_id,
+      subject: subjectsMap.get(triple.subject_id) || {
+        term_id: triple.subject_id,
+        label: '',
+        creator_id: '',
+        type: '',
+        image: null,
+      },
+      predicate: predicatesMap.get(triple.predicate_id) || {
+        term_id: triple.predicate_id,
+        label: '',
+        creator_id: '',
+        type: '',
+      },
+      object: objectsMap.get(triple.object_id) || {
+        term_id: triple.object_id,
+        label: '',
+        creator_id: '',
+        type: '',
+        image: null,
+      },
+    }));
+
+    return enrichedTriples;
+  } catch (error) {
+    console.error("Error fetching triples:", error);
+    return [];
+  }
 };
 
 // Fetch Embedded triples Details
 export const fetchTriplesForNode = async (nodeId, endpoint = "base") => {
   const client = createClient(endpoint);
-  let query, data, variables;
-  query = gql`
-    query Triples($where: triples_bool_exp) {
-      triples(where: $where) {
-        term_id
-        subject {
-          label
+  
+  try {
+    // Étape 1: Récupérer les triples avec seulement les IDs
+    const query = gql`
+      query Triples($where: triples_bool_exp) {
+        triples(where: $where) {
           term_id
+          subject_id
+          predicate_id
+          object_id
+        }
+      }
+    `;
+    
+    const variables = {
+      where: {
+        _or: [
+          {
+            predicate_id: {
+              _eq: nodeId,
+            },
+          },
+          {
+            subject_id: {
+              _eq: nodeId,
+            },
+          },
+          {
+            object_id: {
+              _eq: nodeId,
+            },
+          },
+        ],
+      },
+    };
+
+    const data = await client.request(query, variables);
+    const triples = data.triples || [];
+    
+    if (triples.length === 0) {
+      return [];
+    }
+
+    // Étape 2: Récupérer les détails des subjects, predicates et objects
+    const subjectIds = [...new Set(triples.map(t => t.subject_id).filter(Boolean))];
+    const predicateIds = [...new Set(triples.map(t => t.predicate_id).filter(Boolean))];
+    const objectIds = [...new Set(triples.map(t => t.object_id).filter(Boolean))];
+
+    const atomsQuery = gql`
+      query GetAtoms($subjectIds: [String!]!, $predicateIds: [String!]!, $objectIds: [String!]!) {
+        subjects: atoms(where: { term_id: { _in: $subjectIds } }) {
+          term_id
+          label
           creator_id
           type
           image
         }
-        predicate {
-          label
+        predicates: atoms(where: { term_id: { _in: $predicateIds } }) {
           term_id
+          label
           creator_id
           type
         }
-        object {
-          label
+        objects: atoms(where: { term_id: { _in: $objectIds } }) {
           term_id
+          label
           creator_id
           type
           image
         }
       }
-    }
-  `;
-  variables = {
-    where: {
-      _or: [
-        {
-          predicate_id: {
-            _eq: nodeId,
-          },
-        },
-        {
-          subject_id: {
-            _eq: nodeId,
-          },
-        },
-        {
-          object_id: {
-            _eq: nodeId,
-          },
-        },
-      ],
-    },
-  };
-  data = await client.request(query, variables);
+    `;
 
-  return data.triples.map(transformTripleData);
+    const atomsData = await client.request(atomsQuery, {
+      subjectIds,
+      predicateIds,
+      objectIds,
+    });
+
+    const subjectsMap = new Map(
+      (atomsData.subjects || []).map(atom => [atom.term_id, atom])
+    );
+    const predicatesMap = new Map(
+      (atomsData.predicates || []).map(atom => [atom.term_id, atom])
+    );
+    const objectsMap = new Map(
+      (atomsData.objects || []).map(atom => [atom.term_id, atom])
+    );
+
+    // Étape 3: Enrichir les triples avec les détails
+    const enrichedTriples = triples.map(triple => ({
+      term_id: triple.term_id,
+      subject: subjectsMap.get(triple.subject_id) || {
+        term_id: triple.subject_id,
+        label: '',
+        creator_id: '',
+        type: '',
+        image: null,
+      },
+      predicate: predicatesMap.get(triple.predicate_id) || {
+        term_id: triple.predicate_id,
+        label: '',
+        creator_id: '',
+        type: '',
+      },
+      object: objectsMap.get(triple.object_id) || {
+        term_id: triple.object_id,
+        label: '',
+        creator_id: '',
+        type: '',
+        image: null,
+      },
+    }));
+
+    return enrichedTriples.map(transformTripleData);
+  } catch (error) {
+    console.error("Error fetching triples for node:", error);
+    return [];
+  }
 };
 
 // Search Triples
 export const searchTriples = async (filters, endpoint = "base") => {
   const client = createClient(endpoint);
-  const query = gql`
-    query SearchTriples($where: triples_bool_exp) {
-      triples(where: $where) {
-        term_id
-        subject {
-          label
+  
+  try {
+    // Étape 1: Rechercher les atoms par label si des filtres sont fournis
+    const subjectIds = [];
+    const predicateIds = [];
+    const objectIds = [];
+
+    if (filters.subject) {
+      const subjectQuery = gql`
+        query SearchSubjects($label: String!) {
+          atoms(where: { label: { _ilike: $label } }) {
+            term_id
+          }
+        }
+      `;
+      const subjectData = await client.request(subjectQuery, {
+        label: `%${filters.subject}%`,
+      });
+      subjectIds.push(...(subjectData.atoms || []).map(a => a.term_id));
+    }
+
+    if (filters.predicate) {
+      const predicateQuery = gql`
+        query SearchPredicates($label: String!) {
+          atoms(where: { label: { _ilike: $label } }) {
+            term_id
+          }
+        }
+      `;
+      const predicateData = await client.request(predicateQuery, {
+        label: `%${filters.predicate}%`,
+      });
+      predicateIds.push(...(predicateData.atoms || []).map(a => a.term_id));
+    }
+
+    if (filters.object) {
+      const objectQuery = gql`
+        query SearchObjects($label: String!) {
+          atoms(where: { label: { _ilike: $label } }) {
+            term_id
+          }
+        }
+      `;
+      const objectData = await client.request(objectQuery, {
+        label: `%${filters.object}%`,
+      });
+      objectIds.push(...(objectData.atoms || []).map(a => a.term_id));
+    }
+
+    // Étape 2: Construire le where pour les triples
+    const where = {
+      _and: [],
+    };
+
+    if (subjectIds.length > 0) {
+      where._and.push({
+        subject_id: {
+          _in: subjectIds,
+        },
+      });
+    }
+
+    if (predicateIds.length > 0) {
+      where._and.push({
+        predicate_id: {
+          _in: predicateIds,
+        },
+      });
+    }
+
+    if (objectIds.length > 0) {
+      where._and.push({
+        object_id: {
+          _in: objectIds,
+        },
+      });
+    }
+
+    // Si aucun filtre, retourner un tableau vide
+    if (where._and.length === 0) {
+      return [];
+    }
+
+    // Étape 3: Récupérer les triples avec seulement les IDs
+    const query = gql`
+      query SearchTriples($where: triples_bool_exp) {
+        triples(where: $where) {
           term_id
+          subject_id
+          predicate_id
+          object_id
+        }
+      }
+    `;
+
+    const variables = {
+      where,
+    };
+
+    const data = await client.request(query, variables);
+    const triples = data.triples || [];
+
+    if (triples.length === 0) {
+      return [];
+    }
+
+    // Étape 4: Récupérer les détails des subjects, predicates et objects
+    const allSubjectIds = [...new Set(triples.map(t => t.subject_id).filter(Boolean))];
+    const allPredicateIds = [...new Set(triples.map(t => t.predicate_id).filter(Boolean))];
+    const allObjectIds = [...new Set(triples.map(t => t.object_id).filter(Boolean))];
+
+    const atomsQuery = gql`
+      query GetAtoms($subjectIds: [String!]!, $predicateIds: [String!]!, $objectIds: [String!]!) {
+        subjects: atoms(where: { term_id: { _in: $subjectIds } }) {
+          term_id
+          label
           creator_id
           type
           image
         }
-        predicate {
-          label
+        predicates: atoms(where: { term_id: { _in: $predicateIds } }) {
           term_id
+          label
           creator_id
           type
         }
-        object {
-          label
+        objects: atoms(where: { term_id: { _in: $objectIds } }) {
           term_id
+          label
           creator_id
           type
           image
         }
       }
-    }
-  `;
+    `;
 
-  const where = {
-    _and: [],
-  };
-
-  if (filters.subject) {
-    where._and.push({
-      subject: {
-        label: {
-          _ilike: `%${filters.subject}%`,
-        },
-      },
+    const atomsData = await client.request(atomsQuery, {
+      subjectIds: allSubjectIds,
+      predicateIds: allPredicateIds,
+      objectIds: allObjectIds,
     });
-  }
 
-  if (filters.predicate) {
-    where._and.push({
-      predicate: {
-        label: {
-          _ilike: `%${filters.predicate}%`,
-        },
+    const subjectsMap = new Map(
+      (atomsData.subjects || []).map(atom => [atom.term_id, atom])
+    );
+    const predicatesMap = new Map(
+      (atomsData.predicates || []).map(atom => [atom.term_id, atom])
+    );
+    const objectsMap = new Map(
+      (atomsData.objects || []).map(atom => [atom.term_id, atom])
+    );
+
+    // Étape 5: Enrichir les triples avec les détails
+    const enrichedTriples = triples.map(triple => ({
+      term_id: triple.term_id,
+      subject: subjectsMap.get(triple.subject_id) || {
+        term_id: triple.subject_id,
+        label: '',
+        creator_id: '',
+        type: '',
+        image: null,
       },
-    });
-  }
-
-  if (filters.object) {
-    where._and.push({
-      object: {
-        label: {
-          _ilike: `%${filters.object}%`,
-        },
+      predicate: predicatesMap.get(triple.predicate_id) || {
+        term_id: triple.predicate_id,
+        label: '',
+        creator_id: '',
+        type: '',
       },
-    });
-  }
+      object: objectsMap.get(triple.object_id) || {
+        term_id: triple.object_id,
+        label: '',
+        creator_id: '',
+        type: '',
+        image: null,
+      },
+    }));
 
-  const variables = {
-    where: where._and.length > 0 ? where : {},
-  };
-
-  try {
-    const data = await client.request(query, variables);
-
-    return data.triples.map(transformTripleData);
+    return enrichedTriples.map(transformTripleData);
   } catch (error) {
     console.error("Error executing search query:", error);
     throw error;
@@ -280,101 +520,190 @@ export const fetchTriplesForAgent = async (
 ) => {
   const client = createClient(endpoint);
 
-  // Requête principale : récupérer les triples où Agent est objet
-  const mainQuery = gql`
-    query Triples_for_Agent($objectId: String!, $batchSize: Int!) {
-      triples(limit: $batchSize, where: { object_id: { _eq: $objectId } }) {
-        term_id
-        subject {
-          term_id
-          label
-          type
-          image
-        }
-        predicate {
-          term_id
-          label
-          type
-          image
-        }
-        object {
-          term_id
-          label
-          type
-          image
-        }
-      }
-    }
-  `;
-
-  // Requête secondaire : récupérer les relations de chaque sujet trouvé
-  const relationsQuery = gql`
-    query Relations_for_Subject($subjectId: String!) {
-      triples(where: { subject_id: { _eq: $subjectId } }) {
-        term_id
-        subject {
-          term_id
-          label
-          type
-          image
-        }
-        predicate {
-          term_id
-          label
-          type
-          image
-        }
-        object {
-          term_id
-          label
-          type
-          image
-        }
-      }
-    }
-  `;
-
-  const variables = {
-    batchSize,
-    objectId: String(objectId),
-  };
-
   try {
-    // 1. Récupérer les triples principaux
+    // Étape 1: Récupérer les triples avec seulement les IDs (sans relations subject/predicate/object)
+    const mainQuery = gql`
+      query Triples_for_Agent($objectId: String!, $batchSize: Int!) {
+        triples(limit: $batchSize, where: { object_id: { _eq: $objectId } }) {
+          term_id
+          subject_id
+          predicate_id
+          object_id
+        }
+      }
+    `;
+
+    const variables = {
+      batchSize,
+      objectId: String(objectId),
+    };
+
     const mainData = await client.request(mainQuery, variables);
     const mainTriples = mainData.triples;
 
-    // 2. Récupérer les relations de chaque sujet
-    const subjectIds = [...new Set(mainTriples.map(triple => triple.subject.term_id))];
+    if (mainTriples.length === 0) {
+      return [];
+    }
 
-    const relationsPromises = subjectIds.map(subjectId =>
-      client.request(relationsQuery, { subjectId })
+    // Étape 2: Récupérer les détails des subjects, predicates et objects
+    const subjectIds = [...new Set(mainTriples.map(triple => triple.subject_id).filter(Boolean))];
+    const predicateIds = [...new Set(mainTriples.map(triple => triple.predicate_id).filter(Boolean))];
+    const objectIds = [...new Set(mainTriples.map(triple => triple.object_id).filter(Boolean))];
+
+    const atomsQuery = gql`
+      query GetAtoms($subjectIds: [String!]!, $predicateIds: [String!]!, $objectIds: [String!]!) {
+        subjects: atoms(where: { term_id: { _in: $subjectIds } }) {
+          term_id
+          label
+          type
+          image
+        }
+        predicates: atoms(where: { term_id: { _in: $predicateIds } }) {
+          term_id
+          label
+          type
+          image
+        }
+        objects: atoms(where: { term_id: { _in: $objectIds } }) {
+          term_id
+          label
+          type
+          image
+        }
+      }
+    `;
+
+    const atomsData = await client.request(atomsQuery, {
+      subjectIds,
+      predicateIds,
+      objectIds,
+    });
+
+    const subjectsMap = new Map(
+      (atomsData.subjects || []).map(atom => [atom.term_id, atom])
+    );
+    const predicatesMap = new Map(
+      (atomsData.predicates || []).map(atom => [atom.term_id, atom])
+    );
+    const objectsMap = new Map(
+      (atomsData.objects || []).map(atom => [atom.term_id, atom])
     );
 
-    const relationsResults = await Promise.all(relationsPromises);
-    const allRelations = relationsResults.flatMap(result => result.triples);
+    // Étape 3: Enrichir les triples avec les détails
+    const enrichedTriples = mainTriples.map(triple => ({
+      term_id: triple.term_id,
+      subject: subjectsMap.get(triple.subject_id) || {
+        term_id: triple.subject_id,
+        label: '',
+        type: '',
+        image: null,
+      },
+      predicate: predicatesMap.get(triple.predicate_id) || {
+        term_id: triple.predicate_id,
+        label: '',
+        type: '',
+        image: null,
+      },
+      object: objectsMap.get(triple.object_id) || {
+        term_id: triple.object_id,
+        label: '',
+        type: '',
+        image: null,
+      },
+    }));
 
-    // 3. Combiner et transformer les données
-    const allTriples = [...mainTriples, ...allRelations];
+    // Étape 4: Récupérer les relations de chaque sujet trouvé (sans relations dans la requête)
+    const relationSubjectIds = [...new Set(enrichedTriples.map(triple => triple.subject.term_id))];
+    
+    if (relationSubjectIds.length > 0) {
+      const relationsQuery = gql`
+        query Relations_for_Subject($subjectIds: [String!]!) {
+          triples(where: { subject_id: { _in: $subjectIds } }) {
+            term_id
+            subject_id
+            predicate_id
+            object_id
+          }
+        }
+      `;
 
-    return allTriples.map(transformTripleData);
+      const relationsData = await client.request(relationsQuery, {
+        subjectIds: relationSubjectIds,
+      });
+
+      const relationTriples = relationsData.triples || [];
+      
+      // Récupérer les détails des relations si nécessaire
+      if (relationTriples.length > 0) {
+        const relPredicateIds = [...new Set(relationTriples.map(t => t.predicate_id).filter(Boolean))];
+        const relObjectIds = [...new Set(relationTriples.map(t => t.object_id).filter(Boolean))];
+
+        if (relPredicateIds.length > 0 || relObjectIds.length > 0) {
+          const relAtomsQuery = gql`
+            query GetRelationAtoms($predicateIds: [String!]!, $objectIds: [String!]!) {
+              predicates: atoms(where: { term_id: { _in: $predicateIds } }) {
+                term_id
+                label
+                type
+                image
+              }
+              objects: atoms(where: { term_id: { _in: $objectIds } }) {
+                term_id
+                label
+                type
+                image
+              }
+            }
+          `;
+
+          const relAtomsData = await client.request(relAtomsQuery, {
+            predicateIds: relPredicateIds,
+            objectIds: relObjectIds,
+          });
+
+          const relPredicatesMap = new Map(
+            (relAtomsData.predicates || []).map(atom => [atom.term_id, atom])
+          );
+          const relObjectsMap = new Map(
+            (relAtomsData.objects || []).map(atom => [atom.term_id, atom])
+          );
+
+          const enrichedRelations = relationTriples.map(triple => ({
+            term_id: triple.term_id,
+            subject: subjectsMap.get(triple.subject_id) || {
+              term_id: triple.subject_id,
+              label: '',
+              type: '',
+              image: null,
+            },
+            predicate: relPredicatesMap.get(triple.predicate_id) || {
+              term_id: triple.predicate_id,
+              label: '',
+              type: '',
+              image: null,
+            },
+            object: relObjectsMap.get(triple.object_id) || {
+              term_id: triple.object_id,
+              label: '',
+              type: '',
+              image: null,
+            },
+          }));
+
+          // Combiner les triples principaux et les relations
+          const allTriples = [...enrichedTriples, ...enrichedRelations];
+          return allTriples.map(transformTripleData);
+        }
+      }
+    }
+
+    // Retourner seulement les triples principaux si pas de relations
+    return enrichedTriples.map(transformTripleData);
 
   } catch (error) {
     console.error("Error fetching agent-specific triples:", error);
-    // En cas d'erreur, essayer une approche alternative
-    return fetchTriples(endpoint)
-      .then((triples) => {
-        return triples.filter(
-          (triple) =>
-            triple.subject.term_id === objectId ||
-            triple.object.term_id === objectId ||
-            triple.predicate.term_id === objectId
-        );
-      })
-      .catch((fallbackError) => {
-        console.error("Fallback fetch also failed:", fallbackError);
-        throw error;
-      });
+    // En cas d'erreur, retourner un tableau vide plutôt que d'essayer fetchTriples qui a aussi des problèmes
+    return [];
   }
 };
 
