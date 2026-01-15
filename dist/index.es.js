@@ -3827,7 +3827,7 @@ const uP = (r, e, n) => r.document ? r : {
     displayName: "Intuition Testnet"
   },
   base: {
-    url: "https://mainnet.intuition.sh/v1/graphql",
+    url: "https://proxy.agent-bossfighters.com/graphql",
     displayName: "Intuition Mainnet"
   }
 }, bc = (r) => new rv(pM[r].url), zf = (r) => ({
@@ -4333,7 +4333,7 @@ const uP = (r, e, n) => r.document ? r : {
     module: ub
   },
   base: {
-    url: "https://mainnet.intuition.sh/v1/graphql",
+    url: "https://proxy.agent-bossfighters.com/graphql",
     displayName: "Intuition Mainnet",
     module: ub
   }

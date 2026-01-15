@@ -7,7 +7,7 @@ export const ENDPOINTS = {
     displayName: "Intuition Testnet",
   },
   base: {
-    url: "https://mainnet.intuition.sh/v1/graphql",
+    url: "https://proxy.agent-bossfighters.com/graphql",
     displayName: "Intuition Mainnet",
   },
 };

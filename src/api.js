@@ -15,7 +15,7 @@ export const ENDPOINTS = {
     module: BaseSepolia,
   },
   base: {
-    url: "https://mainnet.intuition.sh/v1/graphql",
+    url: "https://proxy.agent-bossfighters.com/graphql",
     displayName: "Intuition Mainnet",
     module: BaseSepolia,
   },
