@@ -1,5 +1,6 @@
 // src/graphData.js
 import { getNodeColor } from "./nodeColors";
+import { convertGraphDataIpfs } from "./utils/ipfsUtils";
 
 export const transformToGraphData = (triples) => {
   const nodes = [];
@@ -46,5 +47,6 @@ export const transformToGraphData = (triples) => {
     });
   });
 
-  return { nodes, links };
+  // Convertir toutes les URLs IPFS en URLs HTTP avant de retourner
+  return convertGraphDataIpfs({ nodes, links });
 };
