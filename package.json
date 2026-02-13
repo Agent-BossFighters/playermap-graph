@@ -3,7 +3,7 @@
   "version": "0.2.3",
   "private": false,
   "description": "A React library for intuition visualization using force-directed graphs",
-  "author": "Agent",
+  "author": "Agent Studio",
   "license": "MIT",
   "main": "dist/index.umd.js",
   "module": "dist/index.es.js",
