@@ -36,6 +36,9 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
       const baseGraphData = transformToGraphData(triples);
       setGraphData(baseGraphData);
       setInitialGraphData(baseGraphData);
+      
+      setGraphHistory([{ graphData: baseGraphData, selectedTriple: null }]);
+      setCurrentHistoryIndex(0);
     } catch (error) {
       console.error("Error loading graph data:", error);
     } finally {
@@ -50,6 +53,10 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
     setPredicateFilter("");
     setObjectFilter("");
     setShouldSearch(false);
+    
+    // Réinitialiser l'historique à la vue de départ
+    setGraphHistory([{ graphData: initialGraphData, selectedTriple: null }]);
+    setCurrentHistoryIndex(0);
   }, [initialGraphData]);
 
   const handleNodeClick = useCallback(
@@ -88,12 +95,14 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
             if (viewMode === "3D") targetNode.fz = nodePosition.z;
           }
 
+          // Ajouter l'état ACTUEL à l'historique AVANT de changer vers le nouveau
           setGraphHistory((prevHistory) => {
             const updatedHistory = prevHistory.slice(
               0,
               currentHistoryIndex + 1
             );
-            updatedHistory.push({ graphData, selectedTriple: node });
+            // Sauvegarder l'état actuel pour pouvoir y revenir
+            updatedHistory.push({ graphData: newGraphData, selectedTriple: node });
             return updatedHistory;
           });
           setCurrentHistoryIndex((prevIndex) => prevIndex + 1);

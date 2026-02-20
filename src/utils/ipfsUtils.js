@@ -5,9 +5,8 @@
 
 /**
  * Gateway IPFS publique par défaut
- * Alternative: ipfs.io, dweb.link, etc.
  */
-const DEFAULT_GATEWAY = 'gateway.pinata.cloud';
+const DEFAULT_GATEWAY = 'intuition-portal.mypinata.cloud';
 
 /**
  * Vérifie si une URL est une URL IPFS
