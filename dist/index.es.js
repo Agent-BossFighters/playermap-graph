@@ -53409,7 +53409,7 @@ const tM = {
       )
     ]
   }
-), Yx = "gateway.pinata.cloud", ev = (r) => !r || typeof r != "string" ? !1 : r.startsWith("ipfs://") || r.startsWith("ipfs/"), nM = (r, e = Yx) => {
+), Yx = "intuition-portal.mypinata.cloud", ev = (r) => !r || typeof r != "string" ? !1 : r.startsWith("ipfs://") || r.startsWith("ipfs/"), nM = (r, e = Yx) => {
   if (!r || typeof r != "string" || !ev(r))
     return r;
   let n = r;
@@ -53469,14 +53469,14 @@ const tM = {
       let k;
       e === "agent" ? k = await EP(s, r) : k = await av(r);
       const Q = kf(k);
-      a(Q), c(Q);
+      a(Q), c(Q), y([{ graphData: Q, selectedTriple: null }]), x(0);
     } catch (k) {
       console.error("Error loading graph data:", k);
     } finally {
       m(!1);
     }
   }, [r, e]), I = zi(() => {
-    a(l), f(null), S(""), E(""), M(""), P(!1);
+    a(l), f(null), S(""), E(""), M(""), P(!1), y([{ graphData: l, selectedTriple: null }]), x(0);
   }, [l]), L = zi(
     async (k, Q, le) => {
       if (k === null) {
@@ -53495,7 +53495,7 @@ const tM = {
               0,
               g + 1
             );
-            return xe.push({ graphData: o, selectedTriple: k }), xe;
+            return xe.push({ graphData: re, selectedTriple: k }), xe;
           }), x((he) => he + 1), a(re);
         } catch (U) {
           console.error("Error fetching triples:", U);
