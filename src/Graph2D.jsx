@@ -57,7 +57,19 @@ const Graph2D = ({
 
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
-    return () => window.removeEventListener("resize", updateDimensions);
+
+    // ResizeObserver : détecte les changements de taille du conteneur CSS
+    // (ex: panneau speak-up qui s'ouvre à côté et réduit la largeur disponible)
+    let observer;
+    if (containerRef.current && typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(updateDimensions);
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      window.removeEventListener("resize", updateDimensions);
+      if (observer) observer.disconnect();
+    };
   }, []);
 
   // Précharger les images au montage du composant
