@@ -47,6 +47,7 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
   }, [endpoint, graphType]);
 
   const resetGraph = useCallback(() => {
+    if (!initialGraphData) return;
     setGraphData(initialGraphData);
     setSelectedTriple(null);
     setSubjectFilter("");

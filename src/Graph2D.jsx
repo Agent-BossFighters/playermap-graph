@@ -74,6 +74,7 @@ const Graph2D = ({
 
   // Précharger les images au montage du composant
   useEffect(() => {
+    if (!graphData?.nodes) return;
     graphData.nodes.forEach((node) => {
       if (node.image && !loadedImages.has(node.image)) {
         const img = new Image();
@@ -158,6 +159,7 @@ const Graph2D = ({
         graphData={graphData}
         width={dimensions.width}
         height={dimensions.height}
+        backgroundColor="#000000"
         nodeCanvasObject={(node, ctx, globalScale) => {
           const size = (44 / globalScale) * Math.pow(globalScale, 0.15);
           if (node.type === "object") {
@@ -362,7 +364,7 @@ const Graph2D = ({
       )}
 
       {/* Children */}
-      <div style={{ position: "relative", zIndex: 2000 }}>{children}</div>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 2000, pointerEvents: "none" }}>{children}</div>
     </div>
   );
 };

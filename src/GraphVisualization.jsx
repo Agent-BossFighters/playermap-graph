@@ -14,7 +14,7 @@ import SmartSearchInterface from "./components/SmartSearchInterface";
 import { transformToGraphData } from "./graphData";
 //*import ChatBox from "./components/ChatBox"; //*
 
-const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingChange, gamesId, disableNodeDetailsSidebar = false }) => {
+const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingChange, gamesId, disableNodeDetailsSidebar = false, hideNavigationBar = false, onControlsReady }) => {
   // const ACCOUNT_ID = walletAddress.toLowerCase();
   const fgRef = useRef();
   const containerRef = useRef();
@@ -134,6 +134,23 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
     }
   };
 
+  // Remonter les contrôles de navigation au composant parent (pour navbar externe)
+  useEffect(() => {
+    if (onControlsReady) {
+      onControlsReady({
+        goBack: () => { handleAfterSmartSearch(); goBack(); },
+        goForward: () => { handleAfterSmartSearch(); goForward(); },
+        canGoBack,
+        canGoForward,
+        resetGraph: handleFullReset,
+        isSearching: isSearchingActive,
+        handleSearch,
+        handleSearchStart,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canGoBack, canGoForward, isSearchingActive]);
+
   // Composant de sélection du type de graphique
   const GraphTypeSelector = () => (
     <div
@@ -187,24 +204,26 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
         <LoadingAnimation />
       )}
 
-      <NavigationBar
-        onReset={handleFullReset}
-        onBack={() => {
-          handleAfterSmartSearch();
-          goBack();
-        }}
-        onForward={() => {
-          handleAfterSmartSearch();
-          goForward();
-        }}
-        canGoBack={canGoBack}
-        canGoForward={canGoForward}
-      />
+      {!hideNavigationBar && (
+        <NavigationBar
+          onReset={handleFullReset}
+          onBack={() => {
+            handleAfterSmartSearch();
+            goBack();
+          }}
+          onForward={() => {
+            handleAfterSmartSearch();
+            goForward();
+          }}
+          canGoBack={canGoBack}
+          canGoForward={canGoForward}
+        />
+      )}
 
       <div
         style={{
           position: "absolute",
-          top: "80px",
+          bottom: "70px",
           left: "5px",
           zIndex: 50,
         }}
@@ -220,7 +239,8 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
           transform: "translateX(-50%)",
           zIndex: 1000,
           width: "550px",
-          maxWidth: "calc(100% - 350px)",
+          maxWidth: "calc(100% - 450px)",
+          display: hideNavigationBar ? "none" : "block",
         }}
       >
         <SmartSearchInterface
@@ -268,7 +288,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
               color: "#18181b",
               border: "none",
               borderRadius: 12,
-              top: 5,
+              top: 10,
               width: 120,
               height: 54,
               fontSize: 18,
@@ -301,6 +321,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
                 flexDirection: "column",
                 alignItems: "flex-end",
                 position: "relative",
+                outline: "none",
               }}
             >
               <FilterBar
