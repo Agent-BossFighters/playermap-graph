@@ -53784,16 +53784,26 @@ const PJ = 15 * 60 * 1e3, DJ = async (r) => {
       fontSize: "15px",
       textTransform: "uppercase"
     },
+    dropdownWrapper: {
+      position: "absolute",
+      top: "calc(100% + 8px)",
+      left: 0,
+      right: 0,
+      zIndex: 1e3,
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px"
+    },
     activeFilters: {
       display: "flex",
       flexWrap: "wrap",
       alignItems: "center",
-      marginTop: "12px",
       padding: "8px 12px",
-      backgroundColor: "rgba(30, 30, 40, 0.7)",
+      backgroundColor: "rgba(30, 30, 40, 0.95)",
       borderRadius: "6px",
       border: "1px solid rgba(255, 255, 255, 0.1)",
-      backdropFilter: "blur(5px)"
+      backdropFilter: "blur(5px)",
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)"
     },
     filtersLabel: {
       fontWeight: "600",
@@ -53861,10 +53871,6 @@ const PJ = 15 * 60 * 1e3, DJ = async (r) => {
       backgroundColor: "rgba(255, 70, 70, 1)"
     },
     suggestionsContainer: {
-      position: "absolute",
-      top: "calc(100% + 8px)",
-      left: 0,
-      right: 0,
       backgroundColor: "rgba(25, 25, 35, 0.9)",
       backdropFilter: "blur(10px)",
       border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -54028,171 +54034,173 @@ const PJ = 15 * 60 * 1e3, DJ = async (r) => {
         }
       )
     ] }),
-    x && /* @__PURE__ */ ee.jsxs("div", { style: v.activeFilters, children: [
-      /* @__PURE__ */ ee.jsx("div", { style: v.filtersLabel, children: "Active filters:" }),
-      /* @__PURE__ */ ee.jsxs("div", { style: v.filtersChips, children: [
-        c.subject && /* @__PURE__ */ ee.jsxs("div", { style: { ...v.filterChip, ...v.subjectChip }, children: [
-          /* @__PURE__ */ ee.jsxs("span", { children: [
-            "Subject: ",
-            c.subject
+    /* @__PURE__ */ ee.jsxs("div", { style: x || h ? v.dropdownWrapper : { display: "none" }, children: [
+      x && /* @__PURE__ */ ee.jsxs("div", { style: v.activeFilters, children: [
+        /* @__PURE__ */ ee.jsx("div", { style: v.filtersLabel, children: "Active filters:" }),
+        /* @__PURE__ */ ee.jsxs("div", { style: v.filtersChips, children: [
+          c.subject && /* @__PURE__ */ ee.jsxs("div", { style: { ...v.filterChip, ...v.subjectChip }, children: [
+            /* @__PURE__ */ ee.jsxs("span", { children: [
+              "Subject: ",
+              c.subject
+            ] }),
+            /* @__PURE__ */ ee.jsx(
+              "button",
+              {
+                onClick: () => y("subject", c.subject),
+                style: {
+                  ...v.chipButton,
+                  ...M === "subject" ? v.chipButtonHover : {}
+                },
+                onMouseEnter: () => S("subject"),
+                onMouseLeave: () => S(null),
+                children: "×"
+              }
+            )
           ] }),
-          /* @__PURE__ */ ee.jsx(
-            "button",
-            {
-              onClick: () => y("subject", c.subject),
-              style: {
-                ...v.chipButton,
-                ...M === "subject" ? v.chipButtonHover : {}
-              },
-              onMouseEnter: () => S("subject"),
-              onMouseLeave: () => S(null),
-              children: "×"
-            }
-          )
+          c.predicate && /* @__PURE__ */ ee.jsxs("div", { style: { ...v.filterChip, ...v.predicateChip }, children: [
+            /* @__PURE__ */ ee.jsxs("span", { children: [
+              "Predicate: ",
+              c.predicate
+            ] }),
+            /* @__PURE__ */ ee.jsx(
+              "button",
+              {
+                onClick: () => y("predicate", c.predicate),
+                style: {
+                  ...v.chipButton,
+                  ...M === "predicate" ? v.chipButtonHover : {}
+                },
+                onMouseEnter: () => S("predicate"),
+                onMouseLeave: () => S(null),
+                children: "×"
+              }
+            )
+          ] }),
+          c.object && /* @__PURE__ */ ee.jsxs("div", { style: { ...v.filterChip, ...v.objectChip }, children: [
+            /* @__PURE__ */ ee.jsxs("span", { children: [
+              "Object: ",
+              c.object
+            ] }),
+            /* @__PURE__ */ ee.jsx(
+              "button",
+              {
+                onClick: () => y("object", c.object),
+                style: {
+                  ...v.chipButton,
+                  ...M === "object" ? v.chipButtonHover : {}
+                },
+                onMouseEnter: () => S("object"),
+                onMouseLeave: () => S(null),
+                children: "×"
+              }
+            )
+          ] })
         ] }),
-        c.predicate && /* @__PURE__ */ ee.jsxs("div", { style: { ...v.filterChip, ...v.predicateChip }, children: [
-          /* @__PURE__ */ ee.jsxs("span", { children: [
-            "Predicate: ",
-            c.predicate
-          ] }),
-          /* @__PURE__ */ ee.jsx(
-            "button",
-            {
-              onClick: () => y("predicate", c.predicate),
-              style: {
-                ...v.chipButton,
-                ...M === "predicate" ? v.chipButtonHover : {}
-              },
-              onMouseEnter: () => S("predicate"),
-              onMouseLeave: () => S(null),
-              children: "×"
-            }
-          )
+        /* @__PURE__ */ ee.jsx(
+          "button",
+          {
+            onClick: () => u({ subject: "", predicate: "", object: "" }),
+            style: {
+              ...v.clearButton,
+              ...E ? v.clearButtonHover : {}
+            },
+            onMouseEnter: () => A(!0),
+            onMouseLeave: () => A(!1),
+            children: "Clear all filters"
+          }
+        )
+      ] }),
+      h && /* @__PURE__ */ ee.jsxs("div", { style: v.suggestionsContainer, ref: _, children: [
+        f && /* @__PURE__ */ ee.jsx("div", { style: v.loadingContainer, children: /* @__PURE__ */ ee.jsx("div", { style: v.loader }) }),
+        !f && !b && s.length >= 2 && /* @__PURE__ */ ee.jsxs("div", { style: v.noResults, children: [
+          'Aucune suggestion trouvée pour "',
+          s,
+          '"'
         ] }),
-        c.object && /* @__PURE__ */ ee.jsxs("div", { style: { ...v.filterChip, ...v.objectChip }, children: [
-          /* @__PURE__ */ ee.jsxs("span", { children: [
-            "Object: ",
-            c.object
-          ] }),
-          /* @__PURE__ */ ee.jsx(
-            "button",
+        !f && a.subjects.length > 0 && /* @__PURE__ */ ee.jsxs("div", { style: v.suggestionCategory, children: [
+          /* @__PURE__ */ ee.jsx("div", { style: v.categoryHeader, children: "Suggested Subjects" }),
+          /* @__PURE__ */ ee.jsx("div", { style: v.suggestionList, children: a.subjects.map((P, C) => /* @__PURE__ */ ee.jsx(
+            "div",
             {
-              onClick: () => y("object", c.object),
               style: {
-                ...v.chipButton,
-                ...M === "object" ? v.chipButtonHover : {}
+                ...v.suggestionItem,
+                ...v.subjectSuggestion,
+                ...R === `subject-${C}` ? v.suggestionItemHover : {},
+                ...c.subject === P ? v.selectedSuggestion : {}
               },
-              onMouseEnter: () => S("object"),
-              onMouseLeave: () => S(null),
-              children: "×"
-            }
-          )
+              onClick: () => y("subject", P),
+              onMouseEnter: () => O(`subject-${C}`),
+              onMouseLeave: () => O(null),
+              children: P
+            },
+            `subject-${C}`
+          )) })
+        ] }),
+        !f && a.predicates.length > 0 && /* @__PURE__ */ ee.jsxs("div", { style: v.suggestionCategory, children: [
+          /* @__PURE__ */ ee.jsx("div", { style: v.categoryHeader, children: "Suggested Predicates" }),
+          /* @__PURE__ */ ee.jsx("div", { style: v.suggestionList, children: a.predicates.map((P, C) => /* @__PURE__ */ ee.jsx(
+            "div",
+            {
+              style: {
+                ...v.suggestionItem,
+                ...v.predicateSuggestion,
+                ...R === `predicate-${C}` ? v.suggestionItemHover : {},
+                ...c.predicate === P ? v.selectedSuggestion : {}
+              },
+              onClick: () => y("predicate", P),
+              onMouseEnter: () => O(`predicate-${C}`),
+              onMouseLeave: () => O(null),
+              children: P
+            },
+            `predicate-${C}`
+          )) })
+        ] }),
+        !f && a.objects.length > 0 && /* @__PURE__ */ ee.jsxs("div", { style: v.suggestionCategory, children: [
+          /* @__PURE__ */ ee.jsx("div", { style: v.categoryHeader, children: "Suggested Objects" }),
+          /* @__PURE__ */ ee.jsx("div", { style: v.suggestionList, children: a.objects.map((P, C) => /* @__PURE__ */ ee.jsx(
+            "div",
+            {
+              style: {
+                ...v.suggestionItem,
+                ...v.objectSuggestion,
+                ...R === `object-${C}` ? v.suggestionItemHover : {},
+                ...c.object === P ? v.selectedSuggestion : {}
+              },
+              onClick: () => y("object", P),
+              onMouseEnter: () => O(`object-${C}`),
+              onMouseLeave: () => O(null),
+              children: P
+            },
+            `object-${C}`
+          )) })
+        ] }),
+        !f && a.triples && a.triples.length > 0 && /* @__PURE__ */ ee.jsxs("div", { style: v.suggestionCategory, children: [
+          /* @__PURE__ */ ee.jsx("div", { style: v.categoryHeader, children: "Suggested Triples" }),
+          /* @__PURE__ */ ee.jsx("div", { style: v.suggestionList, children: a.triples.map((P, C) => /* @__PURE__ */ ee.jsxs(
+            "div",
+            {
+              style: {
+                ...v.tripleSuggestion,
+                ...R === `triple-${C}` ? v.tripleSuggestionHover : {}
+              },
+              onClick: () => {
+                u({
+                  subject: P.subject,
+                  predicate: P.predicate,
+                  object: P.object
+                });
+              },
+              onMouseEnter: () => O(`triple-${C}`),
+              onMouseLeave: () => O(null),
+              children: [
+                /* @__PURE__ */ ee.jsx("span", { style: v.tripleSubjectPart, children: P.subject }),
+                /* @__PURE__ */ ee.jsx("span", { style: v.triplePredicatePart, children: P.predicate }),
+                /* @__PURE__ */ ee.jsx("span", { style: v.tripleObjectPart, children: P.object })
+              ]
+            },
+            `triple-${C}`
+          )) })
         ] })
-      ] }),
-      /* @__PURE__ */ ee.jsx(
-        "button",
-        {
-          onClick: () => u({ subject: "", predicate: "", object: "" }),
-          style: {
-            ...v.clearButton,
-            ...E ? v.clearButtonHover : {}
-          },
-          onMouseEnter: () => A(!0),
-          onMouseLeave: () => A(!1),
-          children: "Clear all filters"
-        }
-      )
-    ] }),
-    h && /* @__PURE__ */ ee.jsxs("div", { style: v.suggestionsContainer, ref: _, children: [
-      f && /* @__PURE__ */ ee.jsx("div", { style: v.loadingContainer, children: /* @__PURE__ */ ee.jsx("div", { style: v.loader }) }),
-      !f && !b && s.length >= 2 && /* @__PURE__ */ ee.jsxs("div", { style: v.noResults, children: [
-        'Aucune suggestion trouvée pour "',
-        s,
-        '"'
-      ] }),
-      !f && a.subjects.length > 0 && /* @__PURE__ */ ee.jsxs("div", { style: v.suggestionCategory, children: [
-        /* @__PURE__ */ ee.jsx("div", { style: v.categoryHeader, children: "Suggested Subjects" }),
-        /* @__PURE__ */ ee.jsx("div", { style: v.suggestionList, children: a.subjects.map((P, C) => /* @__PURE__ */ ee.jsx(
-          "div",
-          {
-            style: {
-              ...v.suggestionItem,
-              ...v.subjectSuggestion,
-              ...R === `subject-${C}` ? v.suggestionItemHover : {},
-              ...c.subject === P ? v.selectedSuggestion : {}
-            },
-            onClick: () => y("subject", P),
-            onMouseEnter: () => O(`subject-${C}`),
-            onMouseLeave: () => O(null),
-            children: P
-          },
-          `subject-${C}`
-        )) })
-      ] }),
-      !f && a.predicates.length > 0 && /* @__PURE__ */ ee.jsxs("div", { style: v.suggestionCategory, children: [
-        /* @__PURE__ */ ee.jsx("div", { style: v.categoryHeader, children: "Suggested Predicates" }),
-        /* @__PURE__ */ ee.jsx("div", { style: v.suggestionList, children: a.predicates.map((P, C) => /* @__PURE__ */ ee.jsx(
-          "div",
-          {
-            style: {
-              ...v.suggestionItem,
-              ...v.predicateSuggestion,
-              ...R === `predicate-${C}` ? v.suggestionItemHover : {},
-              ...c.predicate === P ? v.selectedSuggestion : {}
-            },
-            onClick: () => y("predicate", P),
-            onMouseEnter: () => O(`predicate-${C}`),
-            onMouseLeave: () => O(null),
-            children: P
-          },
-          `predicate-${C}`
-        )) })
-      ] }),
-      !f && a.objects.length > 0 && /* @__PURE__ */ ee.jsxs("div", { style: v.suggestionCategory, children: [
-        /* @__PURE__ */ ee.jsx("div", { style: v.categoryHeader, children: "Suggested Objects" }),
-        /* @__PURE__ */ ee.jsx("div", { style: v.suggestionList, children: a.objects.map((P, C) => /* @__PURE__ */ ee.jsx(
-          "div",
-          {
-            style: {
-              ...v.suggestionItem,
-              ...v.objectSuggestion,
-              ...R === `object-${C}` ? v.suggestionItemHover : {},
-              ...c.object === P ? v.selectedSuggestion : {}
-            },
-            onClick: () => y("object", P),
-            onMouseEnter: () => O(`object-${C}`),
-            onMouseLeave: () => O(null),
-            children: P
-          },
-          `object-${C}`
-        )) })
-      ] }),
-      !f && a.triples && a.triples.length > 0 && /* @__PURE__ */ ee.jsxs("div", { style: v.suggestionCategory, children: [
-        /* @__PURE__ */ ee.jsx("div", { style: v.categoryHeader, children: "Suggested Triples" }),
-        /* @__PURE__ */ ee.jsx("div", { style: v.suggestionList, children: a.triples.map((P, C) => /* @__PURE__ */ ee.jsxs(
-          "div",
-          {
-            style: {
-              ...v.tripleSuggestion,
-              ...R === `triple-${C}` ? v.tripleSuggestionHover : {}
-            },
-            onClick: () => {
-              u({
-                subject: P.subject,
-                predicate: P.predicate,
-                object: P.object
-              });
-            },
-            onMouseEnter: () => O(`triple-${C}`),
-            onMouseLeave: () => O(null),
-            children: [
-              /* @__PURE__ */ ee.jsx("span", { style: v.tripleSubjectPart, children: P.subject }),
-              /* @__PURE__ */ ee.jsx("span", { style: v.triplePredicatePart, children: P.predicate }),
-              /* @__PURE__ */ ee.jsx("span", { style: v.tripleObjectPart, children: P.object })
-            ]
-          },
-          `triple-${C}`
-        )) })
       ] })
     ] })
   ] });
