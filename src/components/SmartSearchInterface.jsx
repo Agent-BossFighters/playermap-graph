@@ -163,16 +163,26 @@ const SmartSearchInterface = ({
       fontSize: "15px",
       textTransform: "uppercase",
     },
+    dropdownWrapper: {
+      position: "absolute",
+      top: "calc(100% + 8px)",
+      left: 0,
+      right: 0,
+      zIndex: 1000,
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px",
+    },
     activeFilters: {
       display: "flex",
       flexWrap: "wrap",
       alignItems: "center",
-      marginTop: "12px",
       padding: "8px 12px",
-      backgroundColor: "rgba(30, 30, 40, 0.7)",
+      backgroundColor: "rgba(30, 30, 40, 0.95)",
       borderRadius: "6px",
       border: "1px solid rgba(255, 255, 255, 0.1)",
       backdropFilter: "blur(5px)",
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
     },
     filtersLabel: {
       fontWeight: "600",
@@ -240,10 +250,6 @@ const SmartSearchInterface = ({
       backgroundColor: "rgba(255, 70, 70, 1)",
     },
     suggestionsContainer: {
-      position: "absolute",
-      top: "calc(100% + 8px)",
-      left: 0,
-      right: 0,
       backgroundColor: "rgba(25, 25, 35, 0.9)",
       backdropFilter: "blur(10px)",
       border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -420,6 +426,7 @@ const SmartSearchInterface = ({
         </button>
       </div>
 
+      <div style={(hasActiveFilters || showSuggestions) ? styles.dropdownWrapper : { display: "none" }}>
       {hasActiveFilters && (
         <div style={styles.activeFilters}>
           <div style={styles.filtersLabel}>Active filters:</div>
@@ -636,6 +643,7 @@ const SmartSearchInterface = ({
           )}
         </div>
       )}
+      </div>
     </div>
   );
 };

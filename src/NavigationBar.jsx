@@ -3,8 +3,8 @@ import PIGraph_icon from "./asset/PIGraph_icon.svg";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const navBtnStyle = {
-  background: "#ffd32a",
-  color: "#18181b",
+  background: "rgba(0,0,0,0.18)",
+  color: "#ffd32a",
   border: "none",
   borderRadius: 12,
   width: 54,

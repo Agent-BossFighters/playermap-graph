@@ -6,21 +6,21 @@ const GraphLegend = () => {
     <div
       style={{
         position: "absolute",
-        bottom: 5,
+        bottom: 10,
         right: 5,
         zIndex: 1000,
       }}
     >
       <h4
         style={{
-          margin: "0 0 12px 0",
+          margin: "0 0 4px 0",
           fontSize: "18px",
           color: "#ffd32a",
           fontWeight: "bold",
           letterSpacing: "0.5px",
         }}
       >
-        Graph Legend
+        Legend
       </h4>
       <ul
         style={{
@@ -29,11 +29,8 @@ const GraphLegend = () => {
           display: "flex",
           flexDirection: "column",
           gap: "12px",
-          background: "rgba(255, 255, 255, 0.05)",
           borderRadius: "10px",
-          border: "2px solid rgba(255, 255, 255, 0.1)",
-          padding: "16px 24px",
-          boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5)",
+          padding: "16px 16px",
         }}
       >
         <li

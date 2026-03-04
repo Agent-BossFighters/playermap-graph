@@ -132,7 +132,7 @@ const Graph3D = ({
         width={dimensions.width}
         height={dimensions.height}
         controlType="fly"
-        backgroundColor="rgba(0,0,0,0)"
+        backgroundColor="#000000"
         nodeLabel=""
         onNodeClick={onNodeClick}
         linkColor={() => "rgba(255, 211, 42, 0.15)"}

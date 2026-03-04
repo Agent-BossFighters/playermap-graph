@@ -40,6 +40,7 @@ const FilterBar = ({
           alignItems: "center",
           justifyContent: "center",
           zIndex: 2,
+          outline: "none",
         }}
         aria-label="Close filters"
       >
