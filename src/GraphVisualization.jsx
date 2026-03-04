@@ -297,6 +297,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
               cursor: "pointer",
               textTransform: "uppercase",
               transition: "background 0.2s, color 0.2s, transform 0.1s",
+              display: "none",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#ffe066")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "#ffd32a")}

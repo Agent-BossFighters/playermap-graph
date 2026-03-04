@@ -12,8 +12,8 @@ const ViewModeSelector = ({ viewMode, onViewModeChange }) => {
         left: "16px",
       }}
     >
-      <label htmlFor="viewMode" style={{ color: "#ffd32a"}}>
-        View Mode:
+      <label htmlFor="viewMode" style={{ color: "#ffd32a", fontWeight: "bold", textTransform: "uppercase", fontSize: "12px" }}>
+        VIEW
       </label>
       <select
         id="viewMode"
