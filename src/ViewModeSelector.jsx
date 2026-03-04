@@ -9,6 +9,7 @@ const ViewModeSelector = ({ viewMode, onViewModeChange }) => {
         flexDirection: "column",
         alignItems: "left",
         gap: "10px",
+        left: "16px",
       }}
     >
       <label htmlFor="viewMode" style={{ color: "#ffd32a"}}>

@@ -149,7 +149,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canGoBack, canGoForward, isSearchingActive]);
+  }, [canGoBack, canGoForward, isSearchingActive, goBack, goForward]);
 
   // Composant de sélection du type de graphique
   const GraphTypeSelector = () => (
@@ -224,7 +224,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
         style={{
           position: "absolute",
           bottom: "70px",
-          left: "5px",
+          left: "16px",
           zIndex: 50,
         }}
       >

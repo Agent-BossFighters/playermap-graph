@@ -655,7 +655,7 @@ const mn = {
   {
     style: {
       position: "absolute",
-      bottom: 5,
+      bottom: 10,
       right: 5,
       zIndex: 1e3
     },
@@ -664,13 +664,13 @@ const mn = {
         "h4",
         {
           style: {
-            margin: "0 0 12px 0",
+            margin: "0 0 4px 0",
             fontSize: "18px",
             color: "#ffd32a",
             fontWeight: "bold",
             letterSpacing: "0.5px"
           },
-          children: "Graph Legend"
+          children: "Legend"
         }
       ),
       /* @__PURE__ */ ee.jsxs(
@@ -682,11 +682,8 @@ const mn = {
             display: "flex",
             flexDirection: "column",
             gap: "12px",
-            background: "rgba(255, 255, 255, 0.05)",
             borderRadius: "10px",
-            border: "2px solid rgba(255, 255, 255, 0.1)",
-            padding: "16px 24px",
-            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5)"
+            padding: "16px 16px"
           },
           children: [
             /* @__PURE__ */ ee.jsxs(
@@ -53385,7 +53382,8 @@ const tM = {
       display: "flex",
       flexDirection: "column",
       alignItems: "left",
-      gap: "10px"
+      gap: "10px",
+      left: "16px"
     },
     children: [
       /* @__PURE__ */ ee.jsx("label", { htmlFor: "viewMode", style: { color: "#ffd32a" }, children: "View Mode:" }),
@@ -54286,7 +54284,7 @@ const PJ = 15 * 60 * 1e3, DJ = async (r) => {
       handleSearch: q,
       handleSearchStart: Rt
     });
-  }, [j, $, me]);
+  }, [j, $, me, H, ne]);
   const It = () => /* @__PURE__ */ ee.jsxs(
     "div",
     {
@@ -54360,7 +54358,7 @@ const PJ = 15 * 60 * 1e3, DJ = async (r) => {
             style: {
               position: "absolute",
               bottom: "70px",
-              left: "5px",
+              left: "16px",
               zIndex: 50
             },
             children: /* @__PURE__ */ ee.jsx(AJ, { viewMode: h, onViewModeChange: d })

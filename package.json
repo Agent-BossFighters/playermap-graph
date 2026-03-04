@@ -1,6 +1,6 @@
 {
   "name": "playermap_graph",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "private": false,
   "description": "A React library for intuition visualization using force-directed graphs",
   "author": "Agent Studio",
@@ -77,6 +77,8 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.4.1",
     "gh-pages": "^6.2.0",
     "vite": "^5.4.19"
