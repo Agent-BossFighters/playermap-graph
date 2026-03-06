@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchTriples, fetchAtomDetails } from "./api";
+import { getAtomVerificationStatus } from "./config/verifiedAtoms";
 
 const NodeDetailsSidebar = ({ triple, endpoint, onClose }) => {
   const [additionalData, setAdditionalData] = useState(null);
@@ -113,28 +114,117 @@ const NodeDetailsSidebar = ({ triple, endpoint, onClose }) => {
         </button>
       </div>
 
-      {atomDetails && atomDetails.image && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            margin: "24px 0",
-          }}
-        >
-          <img
-            src={atomDetails.image}
-            alt={atomDetails.label || "Node image"}
+      {atomDetails && (() => {
+        const verification = getAtomVerificationStatus(atomDetails.id);
+        
+        // Pour les atomes non-vérifiés, on ne doit JAMAIS afficher l'image
+        if (verification.status === "not-verified") {
+          return (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                backgroundColor: "rgba(248, 113, 113, 0.15)",
+                border: "2px solid #f87171",
+                borderRadius: "8px",
+                padding: "12px",
+                textAlign: "center",
+                width: "100%",
+                margin: "24px 0",
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  color: "#fecaca",
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                }}
+              >
+                ⚠ Community-Created
+              </p>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "13px",
+                  color: "#fca5a5",
+                  lineHeight: "1.4",
+                }}
+              >
+                This atom is community-created and has not been reviewed or approved by the rights holder.
+              </p>
+            </div>
+          );
+        }
+        
+        // Pour les autres statuts, on affiche l'image seulement si elle existe
+        if (!atomDetails.image) return null;
+        
+        return (
+          <div
             style={{
-              width: "120px",
-              height: "120px",
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "3px solid #ffd32a",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              margin: "24px 0",
+              gap: "12px",
             }}
-          />
-        </div>
-      )}
+          >
+            {verification.status === "verified" ? (
+              // ─── ATOME VÉRIFIÉ ───────────────────────────────────
+              <>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    backgroundColor: "#27AE60",
+                    color: "#fff",
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  <span>✓</span>
+                  <span>Verified by {verification.studio}</span>
+                </div>
+                <img
+                  src={atomDetails.image}
+                  alt={atomDetails.label || "Node image"}
+                  style={{
+                    width: "120px",
+                    height: "120px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "3px solid #ffd32a",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  }}
+                />
+              </>
+            ) : (
+              // ─── COMPORTEMENT NORMAL ──────────────────────────────
+              <img
+                src={atomDetails.image}
+                alt={atomDetails.label || "Node image"}
+                style={{
+                  width: "120px",
+                  height: "120px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "3px solid #ffd32a",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                }}
+              />
+            )}
+          </div>
+        );
+      })()}
 
       {loading && (
         <div

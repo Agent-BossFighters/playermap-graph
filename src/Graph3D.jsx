@@ -41,12 +41,16 @@ const Graph3D = ({
     if (textureCache.current.has(node.id)) {
       return textureCache.current.get(node.id);
     }
+    
+    // Vérifier le statut de vérification du nœud
     const size = 128;
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = size;
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, size, size);
+    
     if (node.image) {
+      // Afficher l'image (qui peut être le carré vert pour les non-vérifiés)
       const img = new window.Image();
       img.crossOrigin = "anonymous";
       img.src = node.image;
@@ -77,6 +81,7 @@ const Graph3D = ({
         if (fgRef.current) fgRef.current.emit("redraw");
       };
     } else {
+      // ─── AUCUNE IMAGE ────────────────────────────────────────
       if (node.type === "object") {
         ctx.fillStyle = getNodeColor(node.type) + "CC";
         ctx.fillRect(0, 0, size, size);
@@ -97,6 +102,7 @@ const Graph3D = ({
       ctx.textBaseline = "middle";
       ctx.fillText(label, size / 2, size / 2 + 6);
     }
+    
     const texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
     const material = new THREE.MeshBasicMaterial({

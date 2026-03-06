@@ -163,41 +163,42 @@ const Graph2D = ({
         nodeCanvasObject={(node, ctx, globalScale) => {
           const size = (44 / globalScale) * Math.pow(globalScale, 0.15);
           if (node.type === "object") {
+            // Afficher l'image (qui peut être le carré vert pour les non-vérifiés)
             if (node.image) {
-              ctx.save();
-              ctx.beginPath();
-              ctx.rect(node.x - size / 2, node.y - size / 2, size, size);
-              ctx.closePath();
-              ctx.strokeStyle = node.color;
-              ctx.lineWidth = 3 / globalScale;
-              ctx.stroke();
-              ctx.clip();
-              if (!node.__img) {
-                const img = new window.Image();
-                img.crossOrigin = "anonymous";
-                img.src = node.image;
-                img.onload = () => {
-                  node.__imgLoaded = true;
-                  if (fgRef && fgRef.current && typeof fgRef.current.emit === 'function') {
-                    fgRef.current.emit("redraw");
-                  }
-                };
-                node.__img = img;
-                node.__imgLoaded = false;
-              }
-              if (node.__imgLoaded) {
-                ctx.drawImage(
-                  node.__img,
-                  node.x - size / 2,
-                  node.y - size / 2,
-                  size,
-                  size
-                );
-              } else {
-                ctx.fillStyle = node.color || "#888";
-                ctx.fillRect(node.x - size / 2, node.y - size / 2, size, size);
-              }
-              ctx.restore();
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(node.x - size / 2, node.y - size / 2, size, size);
+                ctx.closePath();
+                ctx.strokeStyle = node.color;
+                ctx.lineWidth = 3 / globalScale;
+                ctx.stroke();
+                ctx.clip();
+                if (!node.__img) {
+                  const img = new window.Image();
+                  img.crossOrigin = "anonymous";
+                  img.src = node.image;
+                  img.onload = () => {
+                    node.__imgLoaded = true;
+                    if (fgRef && fgRef.current && typeof fgRef.current.emit === 'function') {
+                      fgRef.current.emit("redraw");
+                    }
+                  };
+                  node.__img = img;
+                  node.__imgLoaded = false;
+                }
+                if (node.__imgLoaded) {
+                  ctx.drawImage(
+                    node.__img,
+                    node.x - size / 2,
+                    node.y - size / 2,
+                    size,
+                    size
+                  );
+                } else {
+                  ctx.fillStyle = node.color || "#888";
+                  ctx.fillRect(node.x - size / 2, node.y - size / 2, size, size);
+                }
+                ctx.restore();
             } else {
               ctx.save();
               ctx.beginPath();
@@ -213,9 +214,10 @@ const Graph2D = ({
               ctx.font = `bold ${fontSize}px Sans-Serif`;
               ctx.fillStyle = "#fff";
               ctx.textAlign = "center";
-              ctx.textBaseline = "middle";
-              ctx.fillText(label, node.x, node.y + size * 0.04);
-              ctx.restore();
+                ctx.textBaseline = "middle";
+                ctx.fillText(label, node.x, node.y + size * 0.04);
+                ctx.restore();
+
             }
           } else {
             if (node.image) {

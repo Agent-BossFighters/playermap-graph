@@ -18,9 +18,10 @@ const GraphLegend = () => {
           color: "#ffd32a",
           fontWeight: "bold",
           letterSpacing: "0.5px",
+          textTransform: "uppercase",
         }}
       >
-        Legend
+        LEGEND
       </h4>
       <ul
         style={{
