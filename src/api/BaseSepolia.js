@@ -1,4 +1,5 @@
 import { gql, GraphQLClient } from "graphql-request";
+import { getAtomVerificationStatus, GREEN_SQUARE_PLACEHOLDER } from "../config/verifiedAtoms";
 
 // Hardcoded Endpoints with display names
 export const ENDPOINTS = {
@@ -17,25 +18,39 @@ export const createClient = (endpoint) => {
   return new GraphQLClient(ENDPOINTS[endpoint].url);
 };
 
+// Filtrer les images pour les atomes non-vérifiés
+const filterImageForAtom = (atom) => {
+  if (!atom || !atom.id) return atom;
+  
+  const verification = getAtomVerificationStatus(atom.id);
+  
+  // Si l'atome est non-vérifié, remplacer par un carré vert
+  if (verification.status === "not-verified") {
+    return { ...atom, image: GREEN_SQUARE_PLACEHOLDER };
+  }
+  
+  return atom;
+};
+
 const transformTripleData = (triple) => ({
   id: triple.term_id,
-  subject: {
+  subject: filterImageForAtom({
     id: triple.subject.term_id,
     label: triple.subject.label,
     type: triple.subject.type,
     image: triple.subject.image,
-  },
+  }),
   predicate: {
     id: triple.predicate.term_id,
     label: triple.predicate.label,
     type: triple.predicate.type,
   },
-  object: {
+  object: filterImageForAtom({
     id: triple.object.term_id,
     label: triple.object.label,
     type: triple.object.type,
     image: triple.object.image,
-  },
+  }),
 });
 
 // Fetch Atom Details
@@ -62,7 +77,17 @@ export const fetchAtomDetails = async (atomId, endpoint = "base") => {
 
   try {
     const data = await client.request(query, variables);
-    return data.atoms[0]; // Retourner le premier atom trouvé
+    const atom = data.atoms[0];
+    
+    // Appliquer le filtre d'image
+    if (atom) {
+      const verification = getAtomVerificationStatus(atom.term_id);
+      if (verification.status === "not-verified") {
+        atom.image = GREEN_SQUARE_PLACEHOLDER;
+      }
+    }
+    
+    return atom;
   } catch (error) {
     console.error("Error fetching atom details:", error);
     throw error;
@@ -129,14 +154,27 @@ export const fetchTriples = async (endpoint = "base") => {
       objectIds,
     });
 
+    // Appliquer le filtre de vérification aux atoms (fetchTriples)
     const subjectsMap = new Map(
-      (atomsData.subjects || []).map(atom => [atom.term_id, atom])
+      (atomsData.subjects || []).map(atom => {
+        const verification = getAtomVerificationStatus(atom.term_id);
+        if (verification.status === "not-verified") {
+          atom.image = GREEN_SQUARE_PLACEHOLDER;
+        }
+        return [atom.term_id, atom];
+      })
     );
     const predicatesMap = new Map(
       (atomsData.predicates || []).map(atom => [atom.term_id, atom])
     );
     const objectsMap = new Map(
-      (atomsData.objects || []).map(atom => [atom.term_id, atom])
+      (atomsData.objects || []).map(atom => {
+        const verification = getAtomVerificationStatus(atom.term_id);
+        if (verification.status === "not-verified") {
+          atom.image = GREEN_SQUARE_PLACEHOLDER;
+        }
+        return [atom.term_id, atom];
+      })
     );
 
     // Étape 3: Enrichir les triples avec les détails
@@ -253,14 +291,27 @@ export const fetchTriplesForNode = async (nodeId, endpoint = "base") => {
       objectIds,
     });
 
+    // Appliquer le filtre de vérification aux atoms (fetchTriplesForNode)
     const subjectsMap = new Map(
-      (atomsData.subjects || []).map(atom => [atom.term_id, atom])
+      (atomsData.subjects || []).map(atom => {
+        const verification = getAtomVerificationStatus(atom.term_id);
+        if (verification.status === "not-verified") {
+          atom.image = GREEN_SQUARE_PLACEHOLDER;
+        }
+        return [atom.term_id, atom];
+      })
     );
     const predicatesMap = new Map(
       (atomsData.predicates || []).map(atom => [atom.term_id, atom])
     );
     const objectsMap = new Map(
-      (atomsData.objects || []).map(atom => [atom.term_id, atom])
+      (atomsData.objects || []).map(atom => {
+        const verification = getAtomVerificationStatus(atom.term_id);
+        if (verification.status === "not-verified") {
+          atom.image = GREEN_SQUARE_PLACEHOLDER;
+        }
+        return [atom.term_id, atom];
+      })
     );
 
     // Étape 3: Enrichir les triples avec les détails

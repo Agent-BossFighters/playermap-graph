@@ -1,4 +1,5 @@
 import { gql, GraphQLClient } from "graphql-request";
+import { getAtomVerificationStatus, GREEN_SQUARE_PLACEHOLDER } from "../config/verifiedAtoms";
 
 export const ENDPOINTS = {
   base: {
@@ -9,6 +10,20 @@ export const ENDPOINTS = {
 // Create GraphQL client based on endpoint
 export const createClient = (endpoint) => {
   return new GraphQLClient(ENDPOINTS[endpoint].url);
+};
+
+// Filtrer les images pour les atomes non-vérifiés
+const filterImageForAtom = (atom) => {
+  if (!atom || !atom.id) return atom;
+  
+  const verification = getAtomVerificationStatus(atom.id);
+  
+  // Si l'atome est non-vérifié, remplacer par un carré vert
+  if (verification.status === "not-verified") {
+    return { ...atom, image: GREEN_SQUARE_PLACEHOLDER };
+  }
+  
+  return atom;
 };
 
 // Fetch Atom Details
@@ -35,7 +50,7 @@ export const fetchAtomDetails = async (atomId, endpoint = "baseSepolia") => {
 
   try {
     const data = await client.request(query, variables);
-    return data.atom;
+    return filterImageForAtom(data.atom);
   } catch (error) {
     console.error("Error fetching atom details:", error);
     throw error;
@@ -74,10 +89,16 @@ export const fetchTriples = async (endpoint = "baseSepolia") => {
     }
   `;
   data = await client.request(query);
+  
+  // Filtrer les images des triples
+  const filteredTriples = data.triples.map(triple => ({
+    ...triple,
+    subject: filterImageForAtom(triple.subject),
+    object: filterImageForAtom(triple.object),
+  }));
+  
   // Match the structure returned by Base.js
-  return {
-    items: data.triples,
-  }.items;
+  return filteredTriples;
 };
 
 // Fetch Embedded triples Details
@@ -133,7 +154,15 @@ export const fetchTriplesForNode = async (nodeId, endpoint = "baseSepolia") => {
     },
   };
   data = await client.request(query, variables);
-  return data.triples;
+  
+  // Filtrer les images des triples
+  const filteredTriples = data.triples.map(triple => ({
+    ...triple,
+    subject: filterImageForAtom(triple.subject),
+    object: filterImageForAtom(triple.object),
+  }));
+  
+  return filteredTriples;
 };
 
 // Search Triples
@@ -208,7 +237,15 @@ export const searchTriples = async (filters, endpoint = "baseSepolia") => {
 
   try {
     const data = await client.request(query, variables);
-    return data.triples;
+    
+    // Filtrer les images des triples
+    const filteredTriples = data.triples.map(triple => ({
+      ...triple,
+      subject: filterImageForAtom(triple.subject),
+      object: filterImageForAtom(triple.object),
+    }));
+    
+    return filteredTriples;
   } catch (error) {
     console.error("Error executing search query:", error);
     throw error;
