@@ -5,6 +5,7 @@
  */
 export const VERIFIED_ATOMS = {
   // Ajouter les IDs des atomes vérifiés ici
+  "0x15fd51c3248baf65414b97a52ff4302e653bd4f765e6784fd5eb4906ea322390": "Boss Fighters",
 };
 
 /**
