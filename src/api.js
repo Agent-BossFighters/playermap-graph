@@ -104,4 +104,10 @@ export const fetchTriplesForAgent = async (
   return BaseSepolia.fetchTriplesForAgent(objectId, endpoint, batchSize);
 };
 
+// Fetch triples for PlayerMap using constants config (PLAYER_TRIPLE_TYPES + OFFICIAL_GUILDS)
+// Handles nested triples automatically
+export const fetchTriplesForPlayerMap = async (constants, endpoint = "base") => {
+  return BaseSepolia.fetchTriplesForPlayerMap(constants, endpoint);
+};
+
 export * from "./api/BaseSepolia";

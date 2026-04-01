@@ -1,11 +1,11 @@
 import { useState, useCallback, useRef } from "react";
-import { fetchTriples, fetchTriplesForNode, searchTriples, fetchTriplesForAgent } from "../api";
+import { fetchTriples, fetchTriplesForNode, searchTriples, fetchTriplesForAgent, fetchTriplesForPlayerMap } from "../api";
 import { transformToGraphData } from "../graphData";
 
 // ID de l'objet agent par défaut (ID bidon pour test)
 const DEFAULT_AGENT_OBJECT_ID = "0x5dc0a2335c12343d8e0f71b62a73fbf70d06fcbaf647f57d82a189873ad90da3"; // ID bidon pour test
 
-export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelect) => {
+export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelect, constants) => {
   // Utiliser gamesId si fourni, sinon utiliser la valeur par défaut
   const AGENT_OBJECT_ID = gamesId || DEFAULT_AGENT_OBJECT_ID;
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
@@ -28,7 +28,10 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
     setIsLoading(true);
     try {
       let triples;
-      if (graphType === "agent") {
+      if (constants) {
+        // Nouvelle architecture PlayerMap : filtrage par PLAYER_TRIPLE_TYPES + guildes + résolution des triples imbriqués
+        triples = await fetchTriplesForPlayerMap(constants, endpoint);
+      } else if (graphType === "agent") {
         triples = await fetchTriplesForAgent(AGENT_OBJECT_ID, endpoint);
       } else {
         triples = await fetchTriples(endpoint);
@@ -44,7 +47,7 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
     } finally {
       setIsLoading(false);
     }
-  }, [endpoint, graphType]);
+  }, [endpoint, graphType, constants]);
 
   const resetGraph = useCallback(() => {
     if (!initialGraphData) return;

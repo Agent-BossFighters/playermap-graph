@@ -14,8 +14,26 @@ import SmartSearchInterface from "./components/SmartSearchInterface";
 import { transformToGraphData } from "./graphData";
 //*import ChatBox from "./components/ChatBox"; //*
 
-const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingChange, gamesId, disableNodeDetailsSidebar = false, hideNavigationBar = false, onControlsReady }) => {
-  // const ACCOUNT_ID = walletAddress.toLowerCase();
+const GraphVisualization = ({
+  endpoint,
+  walletAddress,
+  onNodeSelect,
+  onLoadingChange,
+  gamesId,
+  disableNodeDetailsSidebar = false,
+  hideNavigationBar = false,
+  onControlsReady,
+  // Nouvelle architecture PlayerMap
+  config,
+  onCreatePlayer,
+  onConnectWallet,
+  walletConnected,
+  publicClient,
+  wagmiConfig,
+  walletHooks,
+}) => {
+  const constants = config?.constants || null;
+
   const fgRef = useRef();
   const containerRef = useRef();
   const [viewMode, setViewMode] = React.useState("2D");
@@ -52,7 +70,7 @@ const GraphVisualization = ({ endpoint, walletAddress, onNodeSelect, onLoadingCh
     setGraphHistory,
     currentHistoryIndex,
     setCurrentHistoryIndex,
-  } = useGraphState(endpoint, graphType, gamesId, onNodeSelect);
+  } = useGraphState(endpoint, graphType, gamesId, onNodeSelect, constants);
 
   const graphData =
     useLocalData && localGraphData ? localGraphData : hookGraphData;
