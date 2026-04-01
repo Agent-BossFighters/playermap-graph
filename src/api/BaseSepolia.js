@@ -758,6 +758,207 @@ export const fetchTriplesForAgent = async (
   }
 };
 
+// Fetch triples for PlayerMap using constants config (PLAYER_TRIPLE_TYPES + OFFICIAL_GUILDS)
+// 2 requêtes : (1) outer triples, (2) résolution subjects (nested vs atom) en query combinée
+// IS_PLAYER_OF sans subject imbriqué → exclu (seuls les [account-has_alias-pseudo] -is_player_of- game passent)
+export const fetchTriplesForPlayerMap = async (constants, endpoint = "base") => {
+  const client = createClient(endpoint);
+  const { PLAYER_TRIPLE_TYPES, OFFICIAL_GUILDS, COMMON_IDS, PREDEFINED_CLAIM_IDS } = constants;
+
+  // Build OR conditions from PLAYER_TRIPLE_TYPES
+  // Supporte objectId (filtre sur l'objet) et subjectId (filtre sur le sujet)
+  const orConditions = Object.values(PLAYER_TRIPLE_TYPES)
+    .filter(type => type.objectId !== null || !!type.subjectId)
+    .map(type => {
+      const conditions = [{ predicate_id: { _eq: type.predicateId } }];
+      if (type.objectId) conditions.push({ object_id: { _eq: type.objectId } });
+      if (type.subjectId) conditions.push({ subject_id: { _eq: type.subjectId } });
+      return { _and: conditions };
+    });
+
+  // Add guild conditions (predicat "is member of" depuis PLAYER_GUILD + chaque guild ID)
+  const guildPredicateId = PLAYER_TRIPLE_TYPES.PLAYER_GUILD?.predicateId;
+  if (OFFICIAL_GUILDS && OFFICIAL_GUILDS.length > 0 && guildPredicateId) {
+    OFFICIAL_GUILDS.forEach(guild => {
+      orConditions.push({
+        _and: [
+          { predicate_id: { _eq: guildPredicateId } },
+          { object_id: { _eq: guild.id } },
+        ],
+      });
+    });
+  }
+
+  // Add predefined claim IDs (fetch by term_id directly)
+  if (PREDEFINED_CLAIM_IDS && PREDEFINED_CLAIM_IDS.length > 0) {
+    orConditions.push({ term_id: { _in: PREDEFINED_CLAIM_IDS } });
+  }
+
+  if (orConditions.length === 0) return [];
+
+  const applyVerification = (atom) => {
+    if (!atom?.term_id) return atom;
+    const verification = getAtomVerificationStatus(atom.term_id);
+    if (verification.status === "not-verified") return { ...atom, image: GREEN_SQUARE_PLACEHOLDER };
+    return atom;
+  };
+
+  try {
+    // Requête 1 : outer triples avec predicate/object
+    const outerQuery = gql`
+      query PlayerMapOuterTriples($where: triples_bool_exp!) {
+        triples(where: $where, limit: 1000) {
+          term_id
+          subject_id
+          predicate_id
+          predicate {
+            term_id
+            label
+            type
+          }
+          object {
+            term_id
+            label
+            type
+            image
+          }
+        }
+      }
+    `;
+
+    const outerData = await client.request(outerQuery, { where: { _or: orConditions } });
+    const outerTriples = outerData.triples || [];
+    if (outerTriples.length === 0) return [];
+
+    // Requête 2 : résoudre les subjects en une seule query combinée
+    // - nestedTriples : subject_id qui est lui-même le term_id d'un triple (→ triple imbriqué)
+    // - subjectAtoms  : subject_id qui est un atom classique
+    const subjectIds = [...new Set(outerTriples.map(t => t.subject_id).filter(Boolean))];
+
+    const resolveQuery = gql`
+      query ResolveSubjects($subjectIds: [String!]!) {
+        nestedTriples: triples(where: { term_id: { _in: $subjectIds } }) {
+          term_id
+          subject_id
+          object_id
+          object {
+            term_id
+            label
+            type
+            image
+            creator_id
+          }
+        }
+        subjectAtoms: atoms(where: { term_id: { _in: $subjectIds } }) {
+          term_id
+          label
+          type
+          image
+          creator_id
+        }
+      }
+    `;
+
+    const resolveData = await client.request(resolveQuery, { subjectIds });
+    const nestedMap = new Map((resolveData.nestedTriples || []).map(t => [t.term_id, t]));
+    const atomsMap = new Map((resolveData.subjectAtoms || []).map(a => [a.term_id, a]));
+
+    // Requête 3 : alias lookup pour résoudre account → pseudo
+    // Couvre deux cas :
+    //   - inner.subject_id : account d'un triple imbriqué (ex: [account-has_alias-pseudo]-IS_PLAYER_OF-game)
+    //   - subject_id direct : account non-nested d'un triple IS (ex: account-IS-fairplay)
+    const innerSubjectIds = [...new Set(
+      (resolveData.nestedTriples || []).map(t => t.subject_id).filter(Boolean)
+    )];
+    const directIsSubjectIds = outerTriples
+      .filter(t => t.predicate_id === COMMON_IDS.IS && !nestedMap.has(t.subject_id))
+      .map(t => t.subject_id)
+      .filter(Boolean);
+    const allAccountIds = [...new Set([...innerSubjectIds, ...directIsSubjectIds])];
+
+    let accountToPseudoMap = new Map();
+    if (allAccountIds.length > 0 && COMMON_IDS.HAS_ALIAS) {
+      const aliasQuery = gql`
+        query AliasLookup($accountIds: [String!]!, $hasAlias: String!) {
+          triples(where: {
+            predicate_id: { _eq: $hasAlias },
+            subject_id: { _in: $accountIds }
+          }) {
+            subject_id
+            object_id
+            object {
+              term_id
+              label
+              type
+              image
+              creator_id
+            }
+          }
+        }
+      `;
+      const aliasData = await client.request(aliasQuery, {
+        accountIds: allAccountIds,
+        hasAlias: COMMON_IDS.HAS_ALIAS,
+      });
+      accountToPseudoMap = new Map(
+        (aliasData.triples || []).map(t => [
+          t.subject_id,
+          t.object || { term_id: t.object_id, label: '', type: '', image: null, creator_id: '' }
+        ])
+      );
+    }
+
+    const predefinedSet = new Set(constants.PREDEFINED_CLAIM_IDS || []);
+
+    const result = [];
+    for (const triple of outerTriples) {
+      const isNested = nestedMap.has(triple.subject_id);
+
+      let rawSubject;
+      if (isNested) {
+        const inner = nestedMap.get(triple.subject_id);
+        if (triple.predicate_id === COMMON_IDS.IN) {
+          // IN nested : sujet = l'atom qualité (inner.object, ex: fairplay)
+          // → crée la chaîne : pseudo → IS → fairplay → IN → BossFighters
+          rawSubject = inner.object
+            || { term_id: inner.object_id, label: '', type: '', image: null, creator_id: '' };
+        } else {
+          // Autres nested (IS_PLAYER_OF...) : remonter vers le pseudo via alias
+          rawSubject = accountToPseudoMap.get(inner.subject_id)
+            || inner.object
+            || { term_id: inner.object_id, label: '', type: '', image: null, creator_id: '' };
+        }
+      } else if (triple.predicate_id === COMMON_IDS.IS && !predefinedSet.has(triple.term_id)) {
+        // IS non-nested (ex: account-IS-fairplay) : résoudre vers pseudo via alias
+        // Si pas d'alias → filtrer (évite d'afficher l'atom account brut)
+        const pseudo = accountToPseudoMap.get(triple.subject_id);
+        if (!pseudo) continue;
+        rawSubject = pseudo;
+      } else if (
+        (triple.predicate_id === COMMON_IDS.IS_PLAYER_OF || triple.predicate_id === COMMON_IDS.IN) &&
+        !isNested
+      ) {
+        // IS_PLAYER_OF et IN non-nested → toujours exclus
+        continue;
+      } else {
+        rawSubject = atomsMap.get(triple.subject_id) || { term_id: triple.subject_id, label: '', type: '', image: null, creator_id: '' };
+      }
+
+      result.push(transformTripleData({
+        term_id: triple.term_id,
+        subject: applyVerification(rawSubject),
+        predicate: triple.predicate || { term_id: triple.predicate_id, label: '', type: '' },
+        object: triple.object || { term_id: '', label: '', type: '', image: null },
+      }));
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching PlayerMap triples:", error);
+    return [];
+  }
+};
+
 // export const fetchAtomIdByCreator = async (creatorAddress, endpoint = "base") => {
 //   const client = createClient(endpoint);
 
