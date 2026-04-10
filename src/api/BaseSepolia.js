@@ -1,6 +1,23 @@
 import { gql, GraphQLClient } from "graphql-request";
 import { getAtomVerificationStatus, GREEN_SQUARE_PLACEHOLDER } from "../config/verifiedAtoms";
 
+// Detect Discord Activity environment (CSP blocks direct external URLs)
+const isDiscordActivity = () =>
+  typeof window !== 'undefined' && window.location.hostname.includes('discordsays.com');
+
+// Proxy external image URLs through local server in Discord mode
+const proxyImageUrl = (url) => {
+  if (!url || url.startsWith('data:') || url.startsWith('/.proxy/') || !isDiscordActivity()) return url;
+  // Convert ipfs:// to HTTP first (Node.js fetch doesn't support ipfs:// protocol)
+  let httpUrl = url;
+  if (url.startsWith('ipfs://')) {
+    httpUrl = `https://ipfs.io/ipfs/${url.slice(7)}`;
+  } else if (url.startsWith('ipfs/')) {
+    httpUrl = `https://ipfs.io/ipfs/${url.slice(5)}`;
+  }
+  return `/.proxy/img-proxy?url=${encodeURIComponent(httpUrl)}`;
+};
+
 // Hardcoded Endpoints with display names
 export const ENDPOINTS = {
   baseSepolia: {
@@ -8,7 +25,12 @@ export const ENDPOINTS = {
     displayName: "Intuition Testnet",
   },
   base: {
-    url: "https://proxy.agent-bossfighters.com/graphql",
+    get url() {
+      if (isDiscordActivity()) {
+        return `${window.location.origin}/.proxy/graphql`;
+      }
+      return 'https://proxy.agent-bossfighters.com/graphql';
+    },
     displayName: "Intuition Mainnet",
   },
 };
@@ -21,15 +43,15 @@ export const createClient = (endpoint) => {
 // Filtrer les images pour les atomes non-vérifiés
 const filterImageForAtom = (atom) => {
   if (!atom || !atom.id) return atom;
-  
+
   const verification = getAtomVerificationStatus(atom.id);
-  
+
   // Si l'atome est non-vérifié, remplacer par un carré vert
   if (verification.status === "not-verified") {
     return { ...atom, image: GREEN_SQUARE_PLACEHOLDER };
   }
-  
-  return atom;
+
+  return { ...atom, image: proxyImageUrl(atom.image) };
 };
 
 const transformTripleData = (triple) => ({
@@ -800,7 +822,7 @@ export const fetchTriplesForPlayerMap = async (constants, endpoint = "base") => 
     if (!atom?.term_id) return atom;
     const verification = getAtomVerificationStatus(atom.term_id);
     if (verification.status === "not-verified") return { ...atom, image: GREEN_SQUARE_PLACEHOLDER };
-    return atom;
+    return { ...atom, image: proxyImageUrl(atom.image) };
   };
 
   try {

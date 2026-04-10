@@ -8,6 +8,10 @@
  */
 const DEFAULT_GATEWAY = 'intuition-portal.mypinata.cloud';
 
+// Detect Discord Activity (CSP blocks external image domains)
+const isDiscordActivity = () =>
+  typeof window !== 'undefined' && window.location.hostname.includes('discordsays.com');
+
 /**
  * Vérifie si une URL est une URL IPFS
  */
@@ -44,7 +48,14 @@ export const ipfsToHttp = (ipfsUrl, gateway = DEFAULT_GATEWAY) => {
   const cleanGateway = gateway.replace(/^https?:\/\//, '').replace(/\/+$/, '');
 
   // Retourner l'URL HTTP
-  return `https://${cleanGateway}/ipfs/${hash}`;
+  const httpUrl = `https://${cleanGateway}/ipfs/${hash}`;
+
+  // In Discord Activity, proxy through local server (gateway is blocked by CSP)
+  if (isDiscordActivity()) {
+    return `/.proxy/img-proxy?url=${encodeURIComponent(httpUrl)}`;
+  }
+
+  return httpUrl;
 };
 
 /**

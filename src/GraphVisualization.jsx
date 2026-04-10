@@ -49,6 +49,7 @@ const GraphVisualization = ({
     isInitialLoad,
     selectedTriple,
     isLoading,
+    loadError: hookLoadError,
     isSearching: hookIsSearching,
     subjectFilter,
     predicateFilter,
@@ -220,6 +221,43 @@ const GraphVisualization = ({
     >
       {(isLoading || isSearchingActive || isSmartSearching) && (
         <LoadingAnimation />
+      )}
+
+      {/* Error state — shown when data loading fails */}
+      {hookLoadError && !isLoading && (
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          color: "#ff4444", background: "rgba(0,0,0,0.85)",
+          padding: "16px 24px", borderRadius: 10, zIndex: 200,
+          maxWidth: 360, textAlign: "center", fontSize: 13,
+          border: "1px solid rgba(255,68,68,0.4)",
+        }}>
+          <div style={{ fontWeight: 700, marginBottom: 8 }}>Graph load error</div>
+          <div style={{ color: "rgba(255,255,255,0.7)", wordBreak: "break-all" }}>{hookLoadError}</div>
+          <button onClick={loadInitialData} style={{
+            marginTop: 12, background: "#ffd32a", color: "#18181b",
+            border: "none", borderRadius: 6, padding: "6px 16px", cursor: "pointer", fontWeight: 700,
+          }}>Retry</button>
+        </div>
+      )}
+
+      {/* Empty state — no data after loading */}
+      {!hookLoadError && !isLoading && !isSearchingActive && graphData.nodes?.length === 0 && (
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          color: "rgba(255,255,255,0.5)", background: "rgba(0,0,0,0.7)",
+          padding: "16px 24px", borderRadius: 10, zIndex: 200,
+          textAlign: "center", fontSize: 13,
+        }}>
+          No graph data
+          <button onClick={loadInitialData} style={{
+            display: "block", margin: "10px auto 0",
+            background: "#ffd32a", color: "#18181b",
+            border: "none", borderRadius: 6, padding: "6px 16px", cursor: "pointer", fontWeight: 700,
+          }}>Retry</button>
+        </div>
       )}
 
       {!hideNavigationBar && (

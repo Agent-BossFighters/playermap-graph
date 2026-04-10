@@ -13,6 +13,7 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [selectedTriple, setSelectedTriple] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(null);
   const [graphHistory, setGraphHistory] = useState([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
   const searchTimeoutRef = useRef(null);
@@ -26,24 +27,28 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
 
   const loadInitialData = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
       let triples;
+      const isDiscord = typeof window !== 'undefined' && window.location.hostname.includes('discordsays.com');
+      console.log('[Graph] loadInitialData — endpoint:', endpoint, '| isDiscord:', isDiscord, '| hasConstants:', !!constants);
       if (constants) {
-        // Nouvelle architecture PlayerMap : filtrage par PLAYER_TRIPLE_TYPES + guildes + résolution des triples imbriqués
         triples = await fetchTriplesForPlayerMap(constants, endpoint);
       } else if (graphType === "agent") {
         triples = await fetchTriplesForAgent(AGENT_OBJECT_ID, endpoint);
       } else {
         triples = await fetchTriples(endpoint);
       }
+      console.log('[Graph] triples loaded:', triples?.length ?? 0);
       const baseGraphData = transformToGraphData(triples);
       setGraphData(baseGraphData);
       setInitialGraphData(baseGraphData);
-      
+
       setGraphHistory([{ graphData: baseGraphData, selectedTriple: null }]);
       setCurrentHistoryIndex(0);
     } catch (error) {
-      console.error("Error loading graph data:", error);
+      console.error("[Graph] Error loading graph data:", error);
+      setLoadError(error?.message || String(error));
     } finally {
       setIsLoading(false);
     }
@@ -218,6 +223,7 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
     isInitialLoad,
     selectedTriple,
     isLoading,
+    loadError,
     isSearching,
     subjectFilter,
     predicateFilter,
