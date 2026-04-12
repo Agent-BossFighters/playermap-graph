@@ -6,7 +6,7 @@
 /**
  * Gateway IPFS publique par défaut
  */
-const DEFAULT_GATEWAY = 'intuition-portal.mypinata.cloud';
+const DEFAULT_GATEWAY = 'ipfs.io';
 
 // Detect Discord Activity (CSP blocks external image domains)
 const isDiscordActivity = () =>

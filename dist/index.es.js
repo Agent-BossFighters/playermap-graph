@@ -53711,7 +53711,7 @@ const sM = {
       ]
     }
   );
-}, Qx = "intuition-portal.mypinata.cloud", kJ = () => typeof window < "u" && window.location.hostname.includes("discordsays.com"), iv = (r) => !r || typeof r != "string" ? !1 : r.startsWith("ipfs://") || r.startsWith("ipfs/"), oM = (r, e = Qx) => {
+}, Qx = "ipfs.io", kJ = () => typeof window < "u" && window.location.hostname.includes("discordsays.com"), iv = (r) => !r || typeof r != "string" ? !1 : r.startsWith("ipfs://") || r.startsWith("ipfs/"), oM = (r, e = Qx) => {
   if (!r || typeof r != "string" || !iv(r))
     return r;
   let n = r;
