@@ -12,6 +12,14 @@ const DEFAULT_GATEWAY = 'ipfs.io';
 const isDiscordActivity = () =>
   typeof window !== 'undefined' && window.location.hostname.includes('discordsays.com');
 
+// Route any external URL through the Discord Activity img-proxy
+const proxyForDiscord = (url) => {
+  if (!url || typeof url !== 'string') return url;
+  if (url.startsWith('data:') || url.startsWith('/.proxy/')) return url;
+  if (!isDiscordActivity()) return url;
+  return `/.proxy/img-proxy?url=${encodeURIComponent(url)}`;
+};
+
 /**
  * Vérifie si une URL est une URL IPFS
  */
@@ -31,9 +39,9 @@ export const ipfsToHttp = (ipfsUrl, gateway = DEFAULT_GATEWAY) => {
     return ipfsUrl;
   }
 
-  // Si ce n'est pas une URL IPFS, retourner l'URL inchangée
+  // Si ce n'est pas une URL IPFS, retourner l'URL (proxiée pour Discord si nécessaire)
   if (!isIpfsUrl(ipfsUrl)) {
-    return ipfsUrl;
+    return proxyForDiscord(ipfsUrl);
   }
 
   // Extraire le hash IPFS
@@ -47,15 +55,9 @@ export const ipfsToHttp = (ipfsUrl, gateway = DEFAULT_GATEWAY) => {
   // Nettoyer le gateway (enlever http/https et trailing slashes)
   const cleanGateway = gateway.replace(/^https?:\/\//, '').replace(/\/+$/, '');
 
-  // Retourner l'URL HTTP
+  // Retourner l'URL HTTP (proxiée pour Discord)
   const httpUrl = `https://${cleanGateway}/ipfs/${hash}`;
-
-  // In Discord Activity, proxy through local server (gateway is blocked by CSP)
-  if (isDiscordActivity()) {
-    return `/.proxy/img-proxy?url=${encodeURIComponent(httpUrl)}`;
-  }
-
-  return httpUrl;
+  return proxyForDiscord(httpUrl);
 };
 
 /**
@@ -84,8 +86,8 @@ export const convertIpfsUrls = (obj, gateway = DEFAULT_GATEWAY) => {
     if (obj.hasOwnProperty(key)) {
       const value = obj[key];
       
-      // Conversion spéciale pour les propriétés "image"
-      if (key === 'image' && typeof value === 'string' && isIpfsUrl(value)) {
+      // Conversion spéciale pour les propriétés "image" — proxy toutes les URLs externes
+      if (key === 'image' && typeof value === 'string') {
         converted[key] = ipfsToHttp(value, gateway);
       } else if (typeof value === 'object' && value !== null) {
         converted[key] = convertIpfsUrls(value, gateway);
