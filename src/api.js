@@ -15,7 +15,12 @@ export const ENDPOINTS = {
     module: BaseSepolia,
   },
   base: {
-    url: "https://proxy.agent-bossfighters.com/graphql",
+    get url() {
+      if (typeof window !== 'undefined' && window.location.hostname.includes('discordsays.com')) {
+        return `${window.location.origin}/.proxy/graphql`;
+      }
+      return 'https://proxy.agent-bossfighters.com/graphql';
+    },
     displayName: "Intuition Mainnet",
     module: BaseSepolia,
   },
