@@ -1,6 +1,6 @@
 {
   "name": "playermap_graph",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "private": false,
   "description": "A React library for intuition visualization using force-directed graphs",
   "author": "Agent Studio",
@@ -25,7 +25,7 @@
   "homepage": "https://graph.i7n.thp-lab.org",
   "dependencies": {
     "3d-force-graph-vr": "^3.1.1",
-    "axios": "^1.9.0",
+    "axios": "1.15.0",
     "d3": "^7.9.0",
     "d3-force-3d": "^3.0.5",
     "graphql": "^16.9.0",
