@@ -12,6 +12,13 @@ const DEFAULT_GATEWAY = 'ipfs.io';
 const isDiscordActivity = () =>
   typeof window !== 'undefined' && window.location.hostname.includes('discordsays.com');
 
+// Decode stored proxy URLs (atoms created in Discord mode store /.proxy/img-proxy?url=... in DB)
+const decodeStoredProxy = (url) => {
+  if (!url || typeof url !== 'string') return url;
+  if (!url.startsWith('/.proxy/img-proxy?url=')) return url;
+  return decodeURIComponent(url.slice('/.proxy/img-proxy?url='.length));
+};
+
 // Route any external URL through the Discord Activity img-proxy
 const proxyForDiscord = (url) => {
   if (!url || typeof url !== 'string') return url;
@@ -37,6 +44,12 @@ export const isIpfsUrl = (url) => {
 export const ipfsToHttp = (ipfsUrl, gateway = DEFAULT_GATEWAY) => {
   if (!ipfsUrl || typeof ipfsUrl !== 'string') {
     return ipfsUrl;
+  }
+
+  // Decode stored proxy URLs before processing
+  const decoded = decodeStoredProxy(ipfsUrl);
+  if (decoded !== ipfsUrl) {
+    return proxyForDiscord(decoded);
   }
 
   // Si ce n'est pas une URL IPFS, retourner l'URL (proxiée pour Discord si nécessaire)

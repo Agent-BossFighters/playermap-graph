@@ -5,15 +5,24 @@ import { getAtomVerificationStatus, GREEN_SQUARE_PLACEHOLDER } from "../config/v
 const isDiscordActivity = () =>
   typeof window !== 'undefined' && window.location.hostname.includes('discordsays.com');
 
+// Decode stored proxy URLs (atoms created in Discord mode store /.proxy/img-proxy?url=... in DB)
+const decodeStoredProxy = (url) => {
+  if (!url || !url.startsWith('/.proxy/img-proxy?url=')) return url;
+  return decodeURIComponent(url.slice('/.proxy/img-proxy?url='.length));
+};
+
 // Proxy external image URLs through local server in Discord mode
 const proxyImageUrl = (url) => {
-  if (!url || url.startsWith('data:') || url.startsWith('/.proxy/') || !isDiscordActivity()) return url;
-  // Convert ipfs:// to HTTP first (Node.js fetch doesn't support ipfs:// protocol)
-  let httpUrl = url;
-  if (url.startsWith('ipfs://')) {
-    httpUrl = `https://ipfs.io/ipfs/${url.slice(7)}`;
-  } else if (url.startsWith('ipfs/')) {
-    httpUrl = `https://ipfs.io/ipfs/${url.slice(5)}`;
+  // Decode any stored proxy URL first
+  const decoded = decodeStoredProxy(url);
+  if (!decoded || decoded.startsWith('data:')) return decoded;
+  if (!isDiscordActivity()) return decoded;
+  // Convert ipfs:// to HTTP before proxying
+  let httpUrl = decoded;
+  if (decoded.startsWith('ipfs://')) {
+    httpUrl = `https://ipfs.io/ipfs/${decoded.slice(7)}`;
+  } else if (decoded.startsWith('ipfs/')) {
+    httpUrl = `https://ipfs.io/ipfs/${decoded.slice(5)}`;
   }
   return `/.proxy/img-proxy?url=${encodeURIComponent(httpUrl)}`;
 };
