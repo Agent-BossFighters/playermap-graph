@@ -90,10 +90,11 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
             z: node.z || 0,
           };
 
-          const filteredTriples = await fetchTriplesForNode(node.id, endpoint);
+          const graphNodeId = node.accountId ?? node.id;
+          const filteredTriples = await fetchTriplesForNode(graphNodeId, endpoint);
           const newGraphData = transformToGraphData(filteredTriples);
 
-          const targetNode = newGraphData.nodes.find((n) => n.id === node.id);
+          const targetNode = newGraphData.nodes.find((n) => n.id === graphNodeId);
           if (targetNode) {
             targetNode.x = nodePosition.x;
             targetNode.y = nodePosition.y;

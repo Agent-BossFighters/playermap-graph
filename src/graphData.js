@@ -15,6 +15,7 @@ export const transformToGraphData = (triples) => {
         id: subject.id,
         label: subject.label,
         image: subject.image,
+        ...(subject.accountId && { accountId: subject.accountId }),
         isTriple: false,
         color: getNodeColor("subject"),
         type: "subject",

@@ -70,6 +70,7 @@ const transformTripleData = (triple) => ({
     label: triple.subject.label,
     type: triple.subject.type,
     image: triple.subject.image,
+    ...(triple.subject.accountId && { accountId: triple.subject.accountId }),
   }),
   predicate: {
     id: triple.predicate.term_id,
@@ -939,6 +940,11 @@ export const fetchTriplesForPlayerMap = async (constants, endpoint = "base") => 
       );
     }
 
+    // Reverse map: pseudo term_id → account term_id (for node click resolution)
+    const pseudoToAccountMap = new Map(
+      [...accountToPseudoMap.entries()].map(([accountId, pseudoAtom]) => [pseudoAtom.term_id, accountId])
+    );
+
     const predefinedSet = new Set(constants.PREDEFINED_CLAIM_IDS || []);
 
     const result = [];
@@ -975,9 +981,12 @@ export const fetchTriplesForPlayerMap = async (constants, endpoint = "base") => 
         rawSubject = atomsMap.get(triple.subject_id) || { term_id: triple.subject_id, label: '', type: '', image: null, creator_id: '' };
       }
 
+      const accountId = pseudoToAccountMap.get(rawSubject.term_id);
+      const enrichedSubject = accountId ? { ...rawSubject, accountId } : rawSubject;
+
       result.push(transformTripleData({
         term_id: triple.term_id,
-        subject: applyVerification(rawSubject),
+        subject: applyVerification(enrichedSubject),
         predicate: triple.predicate || { term_id: triple.predicate_id, label: '', type: '' },
         object: triple.object || { term_id: '', label: '', type: '', image: null },
       }));
