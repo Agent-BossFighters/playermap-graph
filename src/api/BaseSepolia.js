@@ -378,6 +378,149 @@ export const fetchTriplesForNode = async (nodeId, endpoint = "base") => {
   }
 };
 
+// Predicate IDs — immutable on-chain constants
+const PLAYER_PREDICATES = {
+  HAS_ALIAS:    '0x90b0a11a334ba1a7c3613ed8ea007f1f41b274892f0f05cc0b24d3ab34042d3c',
+  IS_PLAYER_OF: '0x6bd2557fa101349b1adab869c7f14bdcb5dce3ae0bc722bee3ae183a544faa81',
+  IS:           '0xdd4320a03fcd85ed6ac29f3171208f05418324d6943f1fac5d3c23cc1ce10eb3',
+  IS_MEMBER_OF: '0xe489948c4bd4fa6f50f402434996b90942ab67585a71c71d81dff8e624f661d4',
+  IN:           '0xb0d3de9abeebc79e74504814f69d38eae809410c9759678855f79d1b4c7405cb',
+};
+
+/**
+ * Expand a player's account atom in the graph.
+ * Resolves account → pseudo via HAS_ALIAS, then fetches all triples
+ * involving that alias triple or the account directly (IS_PLAYER_OF,
+ * IS_MEMBER_OF, IS, IN nested). All triples are displayed with the
+ * pseudo as subject (accountId attached for further navigation).
+ */
+export const fetchTriplesForPlayerNode = async (accountId, endpoint = "base") => {
+  const client = createClient(endpoint);
+
+  const applyVerification = (atom) => {
+    if (!atom?.term_id) return atom;
+    const verification = getAtomVerificationStatus(atom.term_id);
+    if (verification.status === "not-verified") return { ...atom, image: GREEN_SQUARE_PLACEHOLDER };
+    return { ...atom, image: proxyImageUrl(atom.image) };
+  };
+
+  try {
+    // Step 1 — find ALL HAS_ALIAS triples for this account (player may have multiple aliases)
+    const aliasData = await client.request(gql`
+      query PlayerAliases($accountId: String!, $hasAlias: String!) {
+        triples(where: {
+          subject_id: { _eq: $accountId },
+          predicate_id: { _eq: $hasAlias }
+        }) {
+          term_id
+          object { term_id label type image creator_id }
+        }
+      }
+    `, { accountId, hasAlias: PLAYER_PREDICATES.HAS_ALIAS });
+
+    const aliasTriples = aliasData.triples || [];
+    if (aliasTriples.length === 0) {
+      // No alias → fall back to generic expand
+      return fetchTriplesForNode(accountId, endpoint);
+    }
+
+    // Primary alias for display — first one found
+    const pseudoAtom = aliasTriples[0].object;
+    const enrichedPseudo = applyVerification({ ...pseudoAtom, accountId });
+    const aliasTripleIds = aliasTriples.map(t => t.term_id);
+
+    // Step 1b — fetch ALL triples where subject = accountId to get all nested triple IDs
+    // IS_PLAYER_OF may use any [account-X-y] triple as nested subject, not just HAS_ALIAS
+    const accountSubjectData = await client.request(gql`
+      query AccountSubjectTriples($accountId: String!) {
+        triples(where: { subject_id: { _eq: $accountId } }, limit: 200) {
+          term_id predicate_id
+        }
+      }
+    `, { accountId });
+    const allAccountTripleIds = (accountSubjectData.triples || []).map(t => t.term_id);
+
+    // Step 2 — level-1 triples: subject = accountId OR any triple rooted in accountId
+    const allSubjectIds = [...new Set([accountId, ...aliasTripleIds, ...allAccountTripleIds])];
+    const level1Data = await client.request(gql`
+      query PlayerLevel1($subjectIds: [String!]!) {
+        triples(where: { subject_id: { _in: $subjectIds } }, limit: 500) {
+          term_id subject_id predicate_id object_id
+          predicate { term_id label type }
+          object { term_id label type image creator_id }
+        }
+      }
+    `, { subjectIds: allSubjectIds });
+
+    const level1Triples = (level1Data.triples || [])
+      .filter(t => t.predicate_id !== PLAYER_PREDICATES.HAS_ALIAS);
+
+    // Step 3 — level-2 IN triples: subject = any level-1 triple term_id
+    // (covers both [account IS quality] IN context AND [alias IS_PLAYER_OF game] IN context)
+    const level1TermIds = level1Triples.map(t => t.term_id);
+
+    let level2Triples = [];
+    if (level1TermIds.length > 0) {
+      const level2Data = await client.request(gql`
+        query PlayerLevel2($subjectIds: [String!]!, $inPredicate: String!) {
+          triples(where: {
+            subject_id: { _in: $subjectIds },
+            predicate_id: { _eq: $inPredicate }
+          }, limit: 200) {
+            term_id subject_id predicate_id object_id
+            predicate { term_id label type }
+            object { term_id label type image creator_id }
+          }
+        }
+      `, { subjectIds: level1TermIds, inPredicate: PLAYER_PREDICATES.IN });
+      level2Triples = level2Data.triples || [];
+    }
+
+    // Map: IS triple term_id → quality atom (for resolving IN chains)
+    const isTripleToQuality = new Map();
+    for (const t of level1Triples) {
+      if (t.predicate_id === PLAYER_PREDICATES.IS && t.object) {
+        isTripleToQuality.set(t.term_id, t.object);
+      }
+    }
+
+    // Step 4 — build result
+    // - level1 triples: pseudo → predicate → object
+    // - level2 IN triples: qualityAtom → IN → context (mirrors fetchTriplesForPlayerMap)
+    const seen = new Set();
+    const result = [];
+
+    for (const triple of level1Triples) {
+      if (seen.has(triple.term_id)) continue;
+      seen.add(triple.term_id);
+      result.push(transformTripleData({
+        term_id: triple.term_id,
+        subject: enrichedPseudo,
+        predicate: triple.predicate || { term_id: triple.predicate_id, label: '', type: '' },
+        object: triple.object || { term_id: triple.object_id, label: '', type: '', image: null },
+      }));
+    }
+
+    for (const triple of level2Triples) {
+      if (seen.has(triple.term_id)) continue;
+      seen.add(triple.term_id);
+      const qualityAtom = isTripleToQuality.get(triple.subject_id);
+      if (!qualityAtom) continue; // skip IN not resolvable to a quality atom
+      result.push(transformTripleData({
+        term_id: triple.term_id,
+        subject: applyVerification(qualityAtom),
+        predicate: triple.predicate || { term_id: triple.predicate_id, label: '', type: '' },
+        object: triple.object || { term_id: triple.object_id, label: '', type: '', image: null },
+      }));
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching triples for player node:", error);
+    return [];
+  }
+};
+
 // Search Triples
 export const searchTriples = async (filters, endpoint = "base") => {
   const client = createClient(endpoint);
