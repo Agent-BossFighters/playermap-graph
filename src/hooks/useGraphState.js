@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import { fetchTriples, fetchTriplesForNode, searchTriples, fetchTriplesForAgent, fetchTriplesForPlayerMap } from "../api";
+import { fetchTriples, fetchTriplesForNode, fetchTriplesForPlayerNode, searchTriples, fetchTriplesForAgent, fetchTriplesForPlayerMap } from "../api";
 import { transformToGraphData } from "../graphData";
 
 // ID de l'objet agent par défaut (ID bidon pour test)
@@ -90,10 +90,13 @@ export const useGraphState = (endpoint, graphType = "base", gamesId, onNodeSelec
             z: node.z || 0,
           };
 
-          const filteredTriples = await fetchTriplesForNode(node.id, endpoint);
+          const graphNodeId = node.accountId ?? node.id;
+          const filteredTriples = node.accountId
+            ? await fetchTriplesForPlayerNode(graphNodeId, endpoint)
+            : await fetchTriplesForNode(graphNodeId, endpoint);
           const newGraphData = transformToGraphData(filteredTriples);
 
-          const targetNode = newGraphData.nodes.find((n) => n.id === node.id);
+          const targetNode = newGraphData.nodes.find((n) => n.id === graphNodeId);
           if (targetNode) {
             targetNode.x = nodePosition.x;
             targetNode.y = nodePosition.y;
