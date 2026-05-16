@@ -16,6 +16,8 @@ export const VERIFIED_ATOMS = {
 export const NOT_VERIFIED_ATOMS = {
   // Spellcaster
   "0x8df2369b088fbd3e1a6e238fe9337348b4adeb0defd4a63362ed8726ab03be65": "Spellcaster Studio",
+  "0x744c083e5713cd66d7c1ec3ff64e50088285709fac3d2903f20d4f37c6a351e2": "Quantic Dream"
+
 };
 
 /**
