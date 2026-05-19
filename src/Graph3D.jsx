@@ -5,6 +5,7 @@ import { getNodeColor } from "./nodeColors";
 import NodeDetailsSidebar from "./NodeDetailsSidebar";
 import { NODE_COLORS } from "./nodeColors";
 import * as THREE from "three";
+import { GREEN_SQUARE_PLACEHOLDER } from "./config/verifiedAtoms";
 
 const Graph3D = ({
   graphData,
@@ -56,25 +57,35 @@ const Graph3D = ({
       img.src = node.image;
       img.onload = () => {
         ctx.clearRect(0, 0, size, size);
+        const isCommunity = node.image === GREEN_SQUARE_PLACEHOLDER;
+        const iconSize = isCommunity ? size * 0.55 : size;
         if (node.type === "object") {
-          ctx.fillStyle = getNodeColor(node.type) + "CC";
+          ctx.fillStyle = isCommunity ? "#000" : getNodeColor(node.type) + "CC";
           ctx.fillRect(0, 0, size, size);
-          const ratio = Math.max(size / img.width, size / img.height);
-          const w = img.width * ratio;
-          const h = img.height * ratio;
-          ctx.drawImage(img, size / 2 - w / 2, size / 2 - h / 2, w, h);
+          if (isCommunity) {
+            ctx.drawImage(img, size / 2 - iconSize / 2, size / 2 - iconSize / 2, iconSize, iconSize);
+          } else {
+            const ratio = Math.max(size / img.width, size / img.height);
+            const w = img.width * ratio;
+            const h = img.height * ratio;
+            ctx.drawImage(img, size / 2 - w / 2, size / 2 - h / 2, w, h);
+          }
         } else {
           ctx.save();
           ctx.beginPath();
           ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
           ctx.closePath();
           ctx.clip();
-          ctx.fillStyle = getNodeColor(node.type) + "CC";
+          ctx.fillStyle = isCommunity ? "#000" : getNodeColor(node.type) + "CC";
           ctx.fillRect(0, 0, size, size);
-          const ratio = Math.max(size / img.width, size / img.height);
-          const w = img.width * ratio;
-          const h = img.height * ratio;
-          ctx.drawImage(img, size / 2 - w / 2, size / 2 - h / 2, w, h);
+          if (isCommunity) {
+            ctx.drawImage(img, size / 2 - iconSize / 2, size / 2 - iconSize / 2, iconSize, iconSize);
+          } else {
+            const ratio = Math.max(size / img.width, size / img.height);
+            const w = img.width * ratio;
+            const h = img.height * ratio;
+            ctx.drawImage(img, size / 2 - w / 2, size / 2 - h / 2, w, h);
+          }
           ctx.restore();
         }
         texture.needsUpdate = true;

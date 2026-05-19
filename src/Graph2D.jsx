@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { ForceGraph2D } from "react-force-graph";
 import { NODE_COLORS } from "./nodeColors";
 import NodeDetailsSidebar from "./NodeDetailsSidebar";
+import { GREEN_SQUARE_PLACEHOLDER } from "./config/verifiedAtoms";
 
 const tooltipStyle = {
   position: "absolute",
@@ -187,13 +188,15 @@ const Graph2D = ({
                   node.__imgLoaded = false;
                 }
                 if (node.__imgLoaded) {
-                  ctx.drawImage(
-                    node.__img,
-                    node.x - size / 2,
-                    node.y - size / 2,
-                    size,
-                    size
-                  );
+                  const isCommunity = node.image === GREEN_SQUARE_PLACEHOLDER;
+                  if (isCommunity) {
+                    ctx.fillStyle = "#000";
+                    ctx.fillRect(node.x - size / 2, node.y - size / 2, size, size);
+                    const iconSize = size * 0.55;
+                    ctx.drawImage(node.__img, node.x - iconSize / 2, node.y - iconSize / 2, iconSize, iconSize);
+                  } else {
+                    ctx.drawImage(node.__img, node.x - size / 2, node.y - size / 2, size, size);
+                  }
                 } else {
                   ctx.fillStyle = node.color || "#888";
                   ctx.fillRect(node.x - size / 2, node.y - size / 2, size, size);
@@ -242,13 +245,15 @@ const Graph2D = ({
               ctx.stroke();
               ctx.clip();
               if (node.__imgLoaded) {
-                ctx.drawImage(
-                  node.__img,
-                  node.x - size / 2,
-                  node.y - size / 2,
-                  size,
-                  size
-                );
+                const isCommunity = node.image === GREEN_SQUARE_PLACEHOLDER;
+                if (isCommunity) {
+                  ctx.fillStyle = "#000";
+                  ctx.fill();
+                  const iconSize = size * 0.55;
+                  ctx.drawImage(node.__img, node.x - iconSize / 2, node.y - iconSize / 2, iconSize, iconSize);
+                } else {
+                  ctx.drawImage(node.__img, node.x - size / 2, node.y - size / 2, size, size);
+                }
               } else {
                 ctx.fillStyle = node.color || "#888";
                 ctx.fill();
