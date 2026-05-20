@@ -1,3 +1,5 @@
+import communitySvg from '../asset/community.svg';
+
 /**
  * Configuration des atomes vérifiés par les studios
  * Les atomes dans cette liste affichent l'image avec un badge de vérification
@@ -16,12 +18,13 @@ export const VERIFIED_ATOMS = {
 export const NOT_VERIFIED_ATOMS = {
   // Spellcaster
   "0x8df2369b088fbd3e1a6e238fe9337348b4adeb0defd4a63362ed8726ab03be65": "Spellcaster Studio",
+  "0x744c083e5713cd66d7c1ec3ff64e50088285709fac3d2903f20d4f37c6a351e2": "Quantic Dream",
+  "0x4a8ffd8ae95fb4bdf198baf2108eb5b50c7cf965df37e698218f4fb1877fb544": "Mausoleum",
+  "0x2a1792d67123d16628f51fb0ce9d4fc886d78e641c4e3bda3b439bbb9f0926f5": "Nordic Shore",
 };
 
-/**
- * Image de remplacement : carré vert pour les atomes non-vérifiés
- */
-export const GREEN_SQUARE_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%2322c55e'/%3E%3C/svg%3E";
+
+export const GREEN_SQUARE_PLACEHOLDER = communitySvg;
 
 /**
  * Vérifier le statut de vérification d'un atome
