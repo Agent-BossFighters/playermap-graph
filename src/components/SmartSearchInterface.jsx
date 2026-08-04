@@ -92,9 +92,9 @@ const SmartSearchInterface = ({
     });
   };
 
-  // Fonction de recherche simplifiée
+  // Simplified search function
   const handleSearch = async () => {
-    // Signaler le début de la recherche
+    // Signal search start
     if (typeof onSearchStart === "function") {
       onSearchStart();
     }
@@ -106,12 +106,12 @@ const SmartSearchInterface = ({
         object: selectedFilters.object || ""
       };
 
-      // Appeler directement onSearch avec les filtres
+      // Call onSearch directly with filters
       if (typeof onSearch === "function") {
         await onSearch(query, filters);
       }
     } catch (error) {
-      // Gérer l'erreur silencieusement
+      // Fail silently
     }
   };
 
@@ -516,7 +516,7 @@ const SmartSearchInterface = ({
           
           {!isLoadingSuggestions && !hasSuggestions && query.length >= 2 && (
             <div style={styles.noResults}>
-              Aucune suggestion trouvée pour "{query}"
+              No suggestion found for "{query}"
             </div>
           )}
           
