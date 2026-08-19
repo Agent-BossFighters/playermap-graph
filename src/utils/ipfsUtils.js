@@ -4,9 +4,13 @@
  */
 
 /**
- * Gateway IPFS publique par défaut
+ * Gateway IPFS publique par défaut.
+ * gateway.pinata.cloud plutôt qu'ipfs.io : ipfs.io (derrière Cloudflare)
+ * renvoie désormais des 403/challenge sous rafale de requêtes parallèles
+ * et un Cross-Origin-Resource-Policy: same-origin qui bloque l'embed
+ * cross-origin des images quelle que soit la page.
  */
-const DEFAULT_GATEWAY = 'ipfs.io';
+const DEFAULT_GATEWAY = 'gateway.pinata.cloud';
 
 // Detect Discord Activity (CSP blocks external image domains)
 const isDiscordActivity = () =>
@@ -32,8 +36,13 @@ const proxyForDiscord = (url) => {
  */
 export const isIpfsUrl = (url) => {
   if (!url || typeof url !== 'string') return false;
-  return url.startsWith('ipfs://') || url.startsWith('ipfs/');
+  return url.startsWith('ipfs://') || url.startsWith('ipfs/') || IPFS_GATEWAY_URL_RE.test(url);
 };
+
+// URL http(s) de gateway contenant /ipfs/<CID> — les atoms créés par les
+// anciennes versions du client stockent l'URL complète https://ipfs.io/ipfs/…
+// en base ; il faut pouvoir les re-cibler vers la gateway courante.
+const IPFS_GATEWAY_URL_RE = /^https?:\/\/[^/]+\/ipfs\/([a-zA-Z0-9]+)/;
 
 /**
  * Convertit une URL IPFS en URL HTTP
@@ -57,9 +66,12 @@ export const ipfsToHttp = (ipfsUrl, gateway = DEFAULT_GATEWAY) => {
     return proxyForDiscord(ipfsUrl);
   }
 
-  // Extraire le hash IPFS
+  // Extraire le hash IPFS (ipfs://, ipfs/, ou URL http de gateway)
   let hash = ipfsUrl;
-  if (hash.startsWith('ipfs://')) {
+  const gatewayMatch = hash.match(IPFS_GATEWAY_URL_RE);
+  if (gatewayMatch) {
+    hash = gatewayMatch[1];
+  } else if (hash.startsWith('ipfs://')) {
     hash = hash.replace('ipfs://', '');
   } else if (hash.startsWith('ipfs/')) {
     hash = hash.replace('ipfs/', '');

@@ -20,9 +20,9 @@ const proxyImageUrl = (url) => {
   // Convert ipfs:// to HTTP before proxying
   let httpUrl = decoded;
   if (decoded.startsWith('ipfs://')) {
-    httpUrl = `https://ipfs.io/ipfs/${decoded.slice(7)}`;
+    httpUrl = `https://gateway.pinata.cloud/ipfs/${decoded.slice(7)}`;
   } else if (decoded.startsWith('ipfs/')) {
-    httpUrl = `https://ipfs.io/ipfs/${decoded.slice(5)}`;
+    httpUrl = `https://gateway.pinata.cloud/ipfs/${decoded.slice(5)}`;
   }
   return `/.proxy/img-proxy?url=${encodeURIComponent(httpUrl)}`;
 };
